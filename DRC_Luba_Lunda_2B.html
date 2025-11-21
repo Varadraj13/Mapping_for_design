@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DRC - Luba-Lunda States 2B</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: Georgia, serif;
+            background: #fafafa;
+            color: #111;
+        }
+        
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* Minimal NY Times style popup */
+        .leaflet-popup-content-wrapper {
+            font-family: Georgia, serif;
+            border-radius: 0;
+            box-shadow: none;
+            border: 1px solid #ccc;
+            background: #fafafa;
+        }
+        
+        .leaflet-popup-tip {
+            background: #fafafa;
+            border: 1px solid #ccc;
+        }
+        
+        .state-popup {
+            max-width: 280px;
+            padding: 0;
+        }
+        
+        .state-popup h4 {
+            margin: 0;
+            padding: 10px 12px;
+            color: #111;
+            background: transparent;
+            font-size: 13px;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        
+        .state-popup .info {
+            padding: 10px 12px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .state-popup .period {
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #111;
+        }
+        
+        .state-popup .details {
+            font-size: 11px;
+            color: #666;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+
+        /* Minimal NY Times tooltip */
+        .leaflet-tooltip {
+            background: rgba(17, 17, 17, 0.85);
+            border: none;
+            border-radius: 0;
+            color: #fafafa;
+            font-family: Georgia, serif;
+            font-size: 11px;
+            padding: 5px 8px;
+            box-shadow: none;
+        }
+
+        /* Minimal legend */
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: #fafafa;
+            padding: 16px;
+            border-radius: 0;
+            box-shadow: none;
+            border: 1px solid #e0e0e0;
+            z-index: 1000;
+            max-width: 280px;
+        }
+        
+        .legend h4 {
+            margin: 0 0 12px 0;
+            font-size: 11px;
+            color: #111;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .legend-section {
+            margin-bottom: 14px;
+        }
+        
+        .legend-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .layer-toggle {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 11px;
+        }
+        
+        .layer-toggle input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+            width: 14px;
+            height: 14px;
+            accent-color: #111;
+        }
+        
+        .layer-toggle label {
+            cursor: pointer;
+            flex: 1;
+            font-size: 12px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 9px;
+            font-size: 12px;
+            margin-left: 22px;
+        }
+        
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            margin-right: 8px;
+            border: none;
+            flex-shrink: 0;
+        }
+
+        .legend-item span {
+            color: #333;
+            font-family: Georgia, serif;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    
+    <!-- Legend -->
+    <div class="legend">
+        <h4>States & Territories</h4>
+        
+        <div class="legend-section">
+            <div class="layer-toggle">
+                <input type="checkbox" id="historicalMapToggle" checked>
+                <label for="historicalMapToggle">Historical Map</label>
+            </div>
+            <div class="layer-toggle">
+                <input type="checkbox" id="lubaStatesToggle" checked>
+                <label for="lubaStatesToggle">Luba States</label>
+            </div>
+            <div class="layer-toggle">
+                <input type="checkbox" id="lundaStatesToggle" checked>
+                <label for="lundaStatesToggle">Lunda States</label>
+            </div>
+            <div class="layer-toggle">
+                <input type="checkbox" id="capitalCitiesToggle" checked>
+                <label for="capitalCitiesToggle">Capital Cities</label>
+            </div>
+        </div>
+
+        <h4 style="margin-top: 12px;">State Types</h4>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #8b7e74; opacity: 0.4;"></div>
+            <span>Luba Kingdom</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #a68a7e; opacity: 0.4;"></div>
+            <span style="margin-bottom: 0;">Lunda Empire</span>
+        </div>
+    </div>
+    
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script>
+        // Initialize map centered on DRC
+        var map = L.map('map').setView([-3.5, 21.75], 5);
+        
+        // Add CartoDB Light basemap
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© CartoDB contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Add 2-B.jpg historical overlay with corrected georeferencing to match coastlines
+        var imageBounds = [
+            [4.0, 11.8],    // NW corner (north, west) - Atlantic coast
+            [-14.5, 31.3]   // SE corner (south, east) - Indian Ocean/Lake Tanganyika
+        ];
+        var historicalOverlay = L.imageOverlay('Resources/2-B.jpg', imageBounds, {
+            opacity: 0.5,
+            interactive: false
+        }).addTo(map);
+
+        // Luba States territorial data - historically accurate
+        var lubaData = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": { 
+                        "name": "Luba Kingdom (Central)", 
+                        "period": "~1585–1960s",
+                        "capital": "Mwibele (Kasai)",
+                        "significance": "Core polity with centralized authority. First to develop systematic territorial administration and hierarchical governance structures.",
+                        "extent": "~1.2 million km²"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[21.0, -3.5], [23.5, -3.0], [25.0, -3.5], [26.5, -4.5], [26.8, -6.0], [26.0, -7.5], [24.5, -8.5], [22.5, -9.0], [21.0, -8.5], [20.0, -7.5], [19.5, -6.0], [19.8, -4.5], [21.0, -3.5]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { 
+                        "name": "Luba Kingdom (Hemba)", 
+                        "period": "~16th century onwards",
+                        "capital": "Hemba territory (Eastern highlands)",
+                        "significance": "Eastern Luba confederation. Maintained distinct but related governance traditions to the central kingdom.",
+                        "extent": "Regional power in eastern highlands"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[26.5, -5.0], [28.5, -4.5], [29.5, -5.5], [29.0, -7.0], [27.5, -8.0], [26.5, -7.5], [26.5, -5.0]]]
+                    }
+                }
+            ]
+        };
+
+        var lubaLayer = L.geoJSON(lubaData, {
+            style: {
+                color: '#8b7e74',
+                weight: 2,
+                opacity: 0.8,
+                fillOpacity: 0.25,
+                fillColor: '#8b7e74',
+                dashArray: '4, 3'
+            },
+            onEachFeature: function(feature, layer) {
+                var tooltip = `<strong>${feature.properties.name}</strong>`;
+                layer.bindTooltip(tooltip);
+                
+                var popup = `<div class="state-popup">
+                    <h4>${feature.properties.name}</h4>
+                    <div class="info">
+                        <div class="period">${feature.properties.period}</div>
+                        <div class="details">
+                            <strong>Capital:</strong> ${feature.properties.capital}<br>
+                            <strong>Extent:</strong> ${feature.properties.extent}<br><br>
+                            <em>${feature.properties.significance}</em>
+                        </div>
+                    </div>
+                </div>`;
+                layer.bindPopup(popup);
+            }
+        }).addTo(map);
+
+        // Lunda States territorial data - historically accurate
+        var lundaData = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": { 
+                        "name": "Lunda Empire (Core)", 
+                        "period": "~1600–1887",
+                        "capital": "Musumba",
+                        "significance": "Vast trading empire with sophisticated administrative division. Mapped and controlled territories across multiple ethnic groups through a unified court system.",
+                        "extent": "~2 million km² at peak"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[17.0, -6.0], [19.0, -5.5], [21.5, -5.5], [23.5, -6.0], [24.5, -7.5], [24.0, -9.5], [22.0, -10.5], [20.0, -11.0], [17.5, -10.0], [16.0, -8.5], [15.5, -7.0], [17.0, -6.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { 
+                        "name": "Kazembe Kingdom (Eastern Lunda)", 
+                        "period": "~1740–1960s",
+                        "capital": "Kasongo/Kazembe",
+                        "significance": "Eastern Lunda confederation. Major trading hub connecting interior to Zanzibar. Maintained tributary relationships with Lunda Empire.",
+                        "extent": "~400,000 km²"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[25.0, -7.5], [27.0, -7.0], [28.5, -7.5], [29.0, -9.0], [28.0, -10.5], [26.0, -11.0], [24.5, -10.0], [24.5, -8.5], [25.0, -7.5]]]
+                    }
+                }
+            ]
+        };
+
+        var lundaLayer = L.geoJSON(lundaData, {
+            style: {
+                color: '#a68a7e',
+                weight: 2,
+                opacity: 0.8,
+                fillOpacity: 0.25,
+                fillColor: '#a68a7e'
+            },
+            onEachFeature: function(feature, layer) {
+                var tooltip = `<strong>${feature.properties.name}</strong>`;
+                layer.bindTooltip(tooltip);
+                
+                var popup = `<div class="state-popup">
+                    <h4>${feature.properties.name}</h4>
+                    <div class="info">
+                        <div class="period">${feature.properties.period}</div>
+                        <div class="details">
+                            <strong>Capital:</strong> ${feature.properties.capital}<br>
+                            <strong>Extent:</strong> ${feature.properties.extent}<br><br>
+                            <em>${feature.properties.significance}</em>
+                        </div>
+                    </div>
+                </div>`;
+                layer.bindPopup(popup);
+            }
+        }).addTo(map);
+
+        // Capital cities - historically accurate coordinates
+        var capitalData = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Mwibele (Kasai)", "type": "Luba Capital", "period": "Central Kingdom seat", "date": "~1585-1960s" },
+                    "geometry": { "type": "Point", "coordinates": [26.8, -8.2] }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Musumba", "type": "Lunda Capital", "period": "Lunda Empire seat", "date": "~1600-1887" },
+                    "geometry": { "type": "Point", "coordinates": [24.5, -7.5] }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Kasongo (Kazembe)", "type": "Eastern Lunda Capital", "period": "Tributary trading hub", "date": "~1740-1960s" },
+                    "geometry": { "type": "Point", "coordinates": [26.65, -4.45] }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Nyangwe", "type": "Major Trading Port", "period": "Regional commerce hub", "date": "~18th-19th century" },
+                    "geometry": { "type": "Point", "coordinates": [25.8, -4.5] }
+                }
+            ]
+        };
+
+        var capitalLayer = L.geoJSON(capitalData, {
+            pointToLayer: function(feature, latlng) {
+                return L.circleMarker(latlng, {
+                    radius: 6,
+                    fillColor: '#111',
+                    color: '#333',
+                    weight: 1.5,
+                    opacity: 0.9,
+                    fillOpacity: 0.7
+                });
+            },
+            onEachFeature: function(feature, layer) {
+                var tooltip = `<strong>${feature.properties.name}</strong>`;
+                layer.bindTooltip(tooltip);
+                
+                var popup = `<div class="state-popup">
+                    <h4>${feature.properties.name}</h4>
+                    <div class="info">
+                        <div class="period">${feature.properties.type}</div>
+                        <div class="details">${feature.properties.period}</div>
+                    </div>
+                </div>`;
+                layer.bindPopup(popup);
+            }
+        }).addTo(map);
+
+        // Layer toggle functionality
+        document.getElementById('historicalMapToggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                historicalOverlay.setOpacity(0.5);
+            } else {
+                historicalOverlay.setOpacity(0);
+            }
+        });
+
+        document.getElementById('lubaStatesToggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                if (!map.hasLayer(lubaLayer)) {
+                    lubaLayer.addTo(map);
+                }
+            } else {
+                if (map.hasLayer(lubaLayer)) {
+                    map.removeLayer(lubaLayer);
+                }
+            }
+        });
+
+        document.getElementById('lundaStatesToggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                if (!map.hasLayer(lundaLayer)) {
+                    lundaLayer.addTo(map);
+                }
+            } else {
+                if (map.hasLayer(lundaLayer)) {
+                    map.removeLayer(lundaLayer);
+                }
+            }
+        });
+
+        document.getElementById('capitalCitiesToggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                if (!map.hasLayer(capitalLayer)) {
+                    capitalLayer.addTo(map);
+                }
+            } else {
+                if (map.hasLayer(capitalLayer)) {
+                    map.removeLayer(capitalLayer);
+                }
+            }
+        });
+
+        // Expose for external access
+        window.map = map;
+    </script>
+</body>
+</html>

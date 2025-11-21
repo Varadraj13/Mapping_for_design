@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DRC - Berlin Conference & Colonial Borders 2C</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: Georgia, serif;
+            background: #fafafa;
+            color: #111;
+        }
+        
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* Minimal NY Times style popup */
+        .leaflet-popup-content-wrapper {
+            font-family: Georgia, serif;
+            border-radius: 0;
+            box-shadow: none;
+            border: 1px solid #ccc;
+            background: #fafafa;
+        }
+        
+        .leaflet-popup-tip {
+            background: #fafafa;
+            border: 1px solid #ccc;
+        }
+        
+        .border-popup {
+            max-width: 300px;
+            padding: 0;
+        }
+        
+        .border-popup h4 {
+            margin: 0;
+            padding: 10px 12px;
+            color: #111;
+            background: transparent;
+            font-size: 13px;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        
+        .border-popup .info {
+            padding: 10px 12px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .border-popup .impact {
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #111;
+        }
+        
+        .border-popup .details {
+            font-size: 11px;
+            color: #666;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+
+        /* Minimal NY Times tooltip */
+        .leaflet-tooltip {
+            background: rgba(17, 17, 17, 0.85);
+            border: none;
+            border-radius: 0;
+            color: #fafafa;
+            font-family: Georgia, serif;
+            font-size: 11px;
+            padding: 5px 8px;
+            box-shadow: none;
+        }
+
+        /* Minimal legend */
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: #fafafa;
+            padding: 16px;
+            border-radius: 0;
+            box-shadow: none;
+            border: 1px solid #e0e0e0;
+            z-index: 1000;
+            max-width: 280px;
+        }
+        
+        .legend h4 {
+            margin: 0 0 12px 0;
+            font-size: 11px;
+            color: #111;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .legend-section {
+            margin-bottom: 14px;
+        }
+        
+        .legend-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .layer-toggle {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 11px;
+        }
+        
+        .layer-toggle input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+            width: 14px;
+            height: 14px;
+            accent-color: #111;
+        }
+        
+        .layer-toggle label {
+            cursor: pointer;
+            flex: 1;
+            font-size: 12px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 9px;
+            font-size: 12px;
+            margin-left: 22px;
+        }
+        
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            margin-right: 8px;
+            border: none;
+            flex-shrink: 0;
+        }
+
+        .legend-item span {
+            color: #333;
+            font-family: Georgia, serif;
+        }
+
+        /* Info panel */
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #fafafa;
+            padding: 16px;
+            border-radius: 0;
+            box-shadow: none;
+            border: 1px solid #e0e0e0;
+            z-index: 999;
+            max-width: 320px;
+            font-family: Georgia, serif;
+        }
+
+        .info-panel h3 {
+            margin: 0 0 10px 0;
+            font-size: 13px;
+            color: #111;
+            font-weight: 600;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 8px;
+        }
+
+        .info-panel p {
+            margin: 8px 0 0 0;
+            font-size: 11px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .info-panel p:first-of-type {
+            margin-top: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    
+    <!-- Info Panel -->
+    <div class="info-panel">
+        <h3>Berlin Conference & Colonial Borders</h3>
+        <p>The Berlin Conference (1884-1885) partitioned Africa among European powers without African representation. Borders were drawn on maps in Berlin, ignoring existing kingdoms, ethnic territories, and ecological regions.</p>
+        <p>Hover over current borders to see how they were imposed, their colonial origins, and their continuing impact on contemporary conflicts and governance challenges.</p>
+    </div>
+    
+    <!-- Legend -->
+    <div class="legend">
+        <h4>Administrative Boundaries</h4>
+        
+        <div class="legend-section">
+            <div class="layer-toggle">
+                <input type="checkbox" id="internationalBordersToggle" checked>
+                <label for="internationalBordersToggle">International Borders</label>
+            </div>
+            <div class="layer-toggle">
+                <input type="checkbox" id="provincialBordersToggle" checked>
+                <label for="provincialBordersToggle">Provincial Borders (DRC)</label>
+            </div>
+            <div class="layer-toggle">
+                <input type="checkbox" id="colonialOriginToggle" checked>
+                <label for="colonialOriginToggle">Colonial Context</label>
+            </div>
+        </div>
+
+        <h4 style="margin-top: 12px;">Border Types</h4>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #2d2d2d;"></div>
+            <span>International Border</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #8b7e74; opacity: 0.6;"></div>
+            <span>Provincial Border</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #d4a574; opacity: 0.3;"></div>
+            <span style="margin-bottom: 0;">Colonial Zone</span>
+        </div>
+    </div>
+    
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script>
+        // Initialize map centered on Africa
+        var map = L.map('map').setView([0, 20], 4);
+        
+        // Add CartoDB Light basemap
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© CartoDB contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // International borders data - showing how Berlin Conference divided Africa
+        var internationalBordersData = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": { 
+                        "name": "DRC-Angola Border", 
+                        "colonialOrigin": "Portuguese Angola vs. Belgian Congo",
+                        "berlinConference": "1884-1885",
+                        "impact": "Separated ethnic groups; created smuggling corridors; perpetual border tensions over resource control",
+                        "contemporary": "Still disputed in southern regions; refugee flows from Angolan conflicts"
+                    },
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [[12.0, -5.0], [12.5, -8.0], [13.0, -12.0], [13.5, -14.0]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { 
+                        "name": "DRC-Zambia Border", 
+                        "colonialOrigin": "British Northern Rhodesia vs. Belgian Congo",
+                        "berlinConference": "1884-1885",
+                        "impact": "Divided Bantu populations; created artificial economic zones; copper mining on both sides",
+                        "contemporary": "Cross-border mining disputes; shared resource conflicts; migration pressure"
+                    },
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [[25.0, -8.0], [28.0, -9.0], [32.0, -10.0]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { 
+                        "name": "DRC-Uganda/Rwanda Border", 
+                        "colonialOrigin": "British Uganda vs. Belgian Ruanda-Urundi vs. Belgian Congo",
+                        "berlinConference": "1884-1885",
+                        "impact": "Artificially divided Hutu/Tutsi populations; created ethnic tension zones; resource competition",
+                        "contemporary": "Ongoing refugee crises; ethnic conflicts; M23 rebellion flows across borders"
+                    },
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [[29.5, 0.0], [29.8, -1.0], [30.0, -2.5]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { 
+                        "name": "DRC-Cameroon Border", 
+                        "colonialOrigin": "German Kamerun vs. Belgian Congo",
+                        "berlinConference": "1884-1885",
+                        "impact": "Separated related ethnic groups; created territorial ambiguities; resource competition",
+                        "contemporary": "Border disputes over maritime boundaries; fishing rights conflicts"
+                    },
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [[9.0, 2.0], [10.5, 1.0], [12.0, 0.0]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { 
+                        "name": "DRC-Tanzania Border", 
+                        "colonialOrigin": "German East Africa vs. Belgian Congo",
+                        "berlinConference": "1884-1885",
+                        "impact": "Lake Tanganyika divided; fishing rights disputed; refugee populations on both sides",
+                        "contemporary": "Lake resource disputes; refugee camps along border; transnational rebel movements"
+                    },
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [[29.0, -7.0], [29.5, -9.0], [30.0, -11.0]]
+                    }
+                }
+            ]
+        };
+
+        var internationalLayer = L.geoJSON(internationalBordersData, {
+            style: {
+                color: '#2d2d2d',
+                weight: 2.5,
+                opacity: 0.8,
+                dashArray: '5, 3'
+            },
+            onEachFeature: function(feature, layer) {
+                var tooltip = `<strong>${feature.properties.name}</strong>`;
+                layer.bindTooltip(tooltip);
+                
+                var popup = `<div class="border-popup">
+                    <h4>${feature.properties.name}</h4>
+                    <div class="info">
+                        <div class="impact"><strong>Colonial Origin:</strong> ${feature.properties.colonialOrigin}</div>
+                        <div class="details">
+                            <strong>Berlin Conference Era:</strong> ${feature.properties.berlinConference}<br><br>
+                            <strong>Historical Impact:</strong><br>${feature.properties.impact}<br><br>
+                            <strong>Contemporary Issues:</strong><br>${feature.properties.contemporary}
+                        </div>
+                    </div>
+                </div>`;
+                layer.bindPopup(popup);
+            }
+        }).addTo(map);
+
+        // DRC Provincial borders data
+        var provincialBordersData = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": { 
+                        "name": "Kinshasa",
+                        "colonialOrigin": "Congo Free State capital district",
+                        "significance": "Administrative seat imposed by Leopold II"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[15.150677777000112, -4.425150932999969], [15.188044068000067, -4.37218678799988], [15.193418416000014, -4.358750914999916], [15.203960409000075, -4.339010518999956], [15.228351684000103, -4.32485117599991], [15.255740194000055, -4.313068948999913], [15.275273885000047, -4.30035654699995], [15.386584920000104, -4.2443392939999285], [15.42544559700005, -4.230179951999986], [15.450250285000095, -4.217260843999966], [15.458931925000059, -4.21385019899995], [15.462859334000115, -4.20713226299992], [15.484976847000041, -4.1838778689999145], [15.490351196000091, -4.1751962279999475], [15.521150350000056, -4.07680430099991], [15.533759399000076, -4.057994079999901], [15.549055623000129, -4.046211852999903], [15.566832316000074, -4.038046976999894], [15.711216267000111, -3.9921583049999185], [15.755141235000053, -3.985647074999946], [15.799996378000117, -3.9788257849998985], [15.84423140500013, -3.9655966189998964], [15.88298872900009, -3.9453394569999034], [15.888019272871134, -3.9405229785526217], [16.183981404000065, -2.9404492519999508], [15.150677777000112, -4.425150932999969]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { 
+                        "name": "Kasai Region",
+                        "colonialOrigin": "Diamond mining district",
+                        "significance": "Organized around resource extraction rather than ethnic cohesion"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[19.0, -4.0], [23.0, -4.0], [23.0, -7.5], [19.0, -7.5], [19.0, -4.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { 
+                        "name": "Katanga",
+                        "colonialOrigin": "Mining stronghold under colonial rule",
+                        "significance": "Richest resource zone; focus of colonial extraction; site of secession attempt"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[23.0, -7.5], [30.0, -7.5], [30.0, -13.5], [22.0, -13.5], [22.0, -8.0], [23.0, -7.5]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { 
+                        "name": "Kivu Region",
+                        "colonialOrigin": "Eastern colonial territory; rubber & ivory extraction",
+                        "significance": "Divided between North and South; perpetual conflict zone"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[27.5, -1.0], [31.0, -1.0], [31.0, -5.5], [27.5, -5.5], [27.5, -1.0]]]
+                    }
+                }
+            ]
+        };
+
+        var provincialLayer = L.geoJSON(provincialBordersData, {
+            style: {
+                color: '#8b7e74',
+                weight: 1.5,
+                opacity: 0.6,
+                fillOpacity: 0,
+                dashArray: '4, 2'
+            },
+            onEachFeature: function(feature, layer) {
+                var tooltip = `<strong>${feature.properties.name}</strong>`;
+                layer.bindTooltip(tooltip);
+                
+                var popup = `<div class="border-popup">
+                    <h4>${feature.properties.name}</h4>
+                    <div class="info">
+                        <div class="impact"><strong>Colonial Origin:</strong></div>
+                        <div class="details">${feature.properties.colonialOrigin}<br><br><strong>Significance:</strong> ${feature.properties.significance}</div>
+                    </div>
+                </div>`;
+                layer.bindPopup(popup);
+            }
+        }).addTo(map);
+
+        // Colonial zone overlay
+        var colonialZoneData = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": { 
+                        "name": "Congo Free State Territory",
+                        "period": "1884-1908",
+                        "description": "Leopold II's personal domain; extracted rubber, ivory, and minerals"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[12.0, 5.0], [31.0, 5.0], [31.0, -14.0], [12.0, -14.0], [12.0, 5.0]]]
+                    }
+                }
+            ]
+        };
+
+        var colonialZoneLayer = L.geoJSON(colonialZoneData, {
+            style: {
+                color: '#d4a574',
+                weight: 1,
+                opacity: 0,
+                fillOpacity: 0.08,
+                fillColor: '#d4a574'
+            }
+        }).addTo(map);
+
+        // Layer toggle functionality
+        document.getElementById('internationalBordersToggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                if (!map.hasLayer(internationalLayer)) {
+                    internationalLayer.addTo(map);
+                }
+            } else {
+                if (map.hasLayer(internationalLayer)) {
+                    map.removeLayer(internationalLayer);
+                }
+            }
+        });
+
+        document.getElementById('provincialBordersToggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                if (!map.hasLayer(provincialLayer)) {
+                    provincialLayer.addTo(map);
+                }
+            } else {
+                if (map.hasLayer(provincialLayer)) {
+                    map.removeLayer(provincialLayer);
+                }
+            }
+        });
+
+        document.getElementById('colonialOriginToggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                if (!map.hasLayer(colonialZoneLayer)) {
+                    colonialZoneLayer.addTo(map);
+                }
+            } else {
+                if (map.hasLayer(colonialZoneLayer)) {
+                    map.removeLayer(colonialZoneLayer);
+                }
+            }
+        });
+
+        // Expose for external access
+        window.map = map;
+    </script>
+</body>
+</html>

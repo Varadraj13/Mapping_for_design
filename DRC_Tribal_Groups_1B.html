@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DRC Tribal Groups - 1B Layer</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Georgia, serif;
+        }
+        
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+        
+        /* Popup styling */
+        .leaflet-popup-content-wrapper {
+            font-family: Georgia, serif;
+            border-radius: 8px;
+        }
+        
+        .tribe-popup {
+            max-width: 280px;
+        }
+        
+        .tribe-popup h4 {
+            margin: 0 0 8px 0;
+            color: #2c5530;
+            font-size: 16px;
+            border-bottom: 2px solid #2c5530;
+            padding-bottom: 4px;
+        }
+        
+        .tribe-popup .category {
+            font-size: 11px;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .tribe-popup .region {
+            font-size: 12px;
+            color: #8B4513;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+        
+        .tribe-popup .description {
+            font-size: 12px;
+            line-height: 1.4;
+            color: #444;
+            margin-bottom: 8px;
+        }
+        
+        .tribe-popup .population {
+            font-size: 11px;
+            color: #666;
+            font-style: italic;
+        }
+
+        /* Legend */
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 250px;
+        }
+        
+        .legend h4 {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        .legend h5 {
+            margin: 0;
+            font-size: 12px;
+            color: #333;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 11px;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 16px;
+            margin-right: 8px;
+            border: 1px solid #666;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    
+    <!-- Legend -->
+    <div class="legend">
+        <h4>Layers - Story 1B</h4>
+        <div style="margin-bottom: 12px; border-bottom: 1px solid #ccc; padding-bottom: 8px;">
+            <label style="display: block; margin-bottom: 6px;">
+                <input type="checkbox" id="languageLayerToggle" checked> 
+                <span style="font-weight: bold; color: #2c5530;">Languages Spoken</span>
+            </label>
+            <label style="display: block;">
+                <input type="checkbox" id="tribalLayerToggle" checked>
+                <span style="font-weight: bold; color: #2c5530;">Tribal Groups</span>
+            </label>
+        </div>
+        
+        <h5 style="margin: 8px 0 6px 0; font-size: 12px; border-bottom: 1px solid #ddd; padding-bottom: 4px;">Language Family Groups</h5>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #4A90E2;"></div>
+            <span>Lingala & Trade Languages</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #7ED321;"></div>
+            <span>Bantu Languages</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #F5A623;"></div>
+            <span>Sudanic Languages</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #BD10E0;"></div>
+            <span>Ubangian Languages</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #50E3C2;"></div>
+            <span>River Community Languages</span>
+        </div>
+        
+        <h5 style="margin: 12px 0 6px 0; font-size: 12px; border-bottom: 1px solid #ddd; padding-bottom: 4px;">Tribal Groups</h5>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #2E8B57;"></div>
+            <span>Bantu Groups</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #CD853F;"></div>
+            <span>Sudanic Groups</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #8B4513;"></div>
+            <span>Nilotic Groups</span>
+        </div>
+    </div>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    
+    <script>
+        // Initialize map centered on DRC
+        var map = L.map('map').setView([-2.0, 22.0], 6);
+
+        // Add CartoDB Light basemap
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap contributors © CartoDB',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Historical Image Overlay (1-B.jpg as background reference)
+        var imageBounds = [
+            [5.5, 12.0],    // Southwest corner
+            [-13.5, 31.5]   // Northeast corner
+        ];
+        
+        var historicalOverlay = L.imageOverlay('Resources/1-B.jpg', imageBounds, {
+            opacity: 0.3,
+            interactive: false
+        }).addTo(map);
+
+        // Comprehensive language distribution data for DRC
+        var languageDistributionData = {
+            "type": "FeatureCollection",
+            "features": [
+                // LINGALA (14,432,975 speakers)
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Lingala",
+                        "speakers": "14,432,975",
+                        "percentage": "High coverage",
+                        "description": "Trade language of the Congo River and northern DRC. Primary lingua franca in Kinshasa and Equateur provinces.",
+                        "regions": "Northwestern DRC, Congo River basin, Kinshasa"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[12.5, 2.0], [24.0, 2.0], [24.0, -4.0], [12.5, -4.0], [12.5, 2.0]]]
+                    }
+                },
+                
+                // KIKONGO (Kongo-related languages)
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Kikongo / Kongo Languages",
+                        "speakers": "457,911+",
+                        "percentage": "90%+ in regions",
+                        "description": "Primary language of Kongo Kingdom and western DRC. Major language in Kongo Central and lower Congo region.",
+                        "regions": "Western DRC (Kongo Central, Lower Congo)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[12.0, -3.0], [16.0, -3.0], [16.0, -7.5], [12.0, -7.5], [12.0, -3.0]]]
+                    }
+                },
+
+                // TSHILUBA (Luba language group)
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Tshiluba / Luba Languages",
+                        "speakers": "395,871+",
+                        "percentage": "100%+ in regions",
+                        "description": "Language of the Luba Empire. Dominant in Kasai region and central-southern DRC.",
+                        "regions": "Kasai Occidental, Kasai Oriental"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[19.0, -4.0], [26.0, -4.0], [26.0, -8.0], [19.0, -8.0], [19.0, -4.0]]]
+                    }
+                },
+
+                // KILUBA (Eastern Luba)
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Kiluba / Eastern Luba",
+                        "speakers": "~400,000",
+                        "percentage": "High coverage",
+                        "description": "Luba language of the eastern regions. Spoken in Katanga and surrounding areas.",
+                        "regions": "Katanga, Haut-Katanga"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[22.0, -7.0], [30.0, -7.0], [30.0, -13.5], [22.0, -13.5], [22.0, -7.0]]]
+                    }
+                },
+
+                // DJOLU (Sudanic language)
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Djolu",
+                        "speakers": "366,705",
+                        "percentage": "93%+ in regions",
+                        "description": "Sudanic language of northeastern DRC. Related to Azande language group.",
+                        "regions": "Northeastern DRC (Upper Congo)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[24.0, 0.5], [30.0, 0.5], [30.0, 2.5], [24.0, 2.5], [24.0, 0.5]]]
+                    }
+                },
+
+                // LIBENGE (Ubangian languages)
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Libenge",
+                        "speakers": "365,190",
+                        "percentage": "90%+ in regions",
+                        "description": "Ubangian language group spoken in northern DRC border regions.",
+                        "regions": "Northern DRC (Ubangian region)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[24.0, 2.0], [27.0, 2.0], [27.0, 4.0], [24.0, 4.0], [24.0, 2.0]]]
+                    }
+                },
+
+                // BUSANGU
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Busangu",
+                        "speakers": "457,911",
+                        "percentage": "95%+ in regions",
+                        "description": "Language of the Busangu people. Spoken in eastern Equateur region.",
+                        "regions": "Equateur Province"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[20.0, 0.5], [24.0, 0.5], [24.0, 2.5], [20.0, 2.5], [20.0, 0.5]]]
+                    }
+                },
+
+                // KUTU
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Kutu",
+                        "speakers": "395,871",
+                        "percentage": "100%+ in regions",
+                        "description": "Bantu language of central DRC. Related to Mongo language cluster.",
+                        "regions": "Central DRC (Congo Basin)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[18.0, -2.0], [24.0, -2.0], [24.0, -4.5], [18.0, -4.5], [18.0, -2.0]]]
+                    }
+                },
+
+                // BASANKUSU (Mongo-related)
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Basankusu",
+                        "speakers": "350,541",
+                        "percentage": "90%+ in regions",
+                        "description": "Bantu language of the Mongo peoples. Spoken in central Congo Basin.",
+                        "regions": "Central Congo Basin"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[18.5, -3.0], [23.0, -3.0], [23.0, -5.5], [18.5, -5.5], [18.5, -3.0]]]
+                    }
+                },
+
+                // YAKOMA
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Yakoma",
+                        "speakers": "344,459",
+                        "percentage": "94%+ in regions",
+                        "description": "Ubangian language of northwestern DRC. Spoken in Ubangi region.",
+                        "regions": "Northwestern DRC (Ubangian region)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[17.0, 1.5], [21.0, 1.5], [21.0, 3.5], [17.0, 3.5], [17.0, 1.5]]]
+                    }
+                },
+
+                // BASOKO (River communities)
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Basoko",
+                        "speakers": "336,979",
+                        "percentage": "93%+ in regions",
+                        "description": "Language of river trading communities. Spoken along middle Congo River.",
+                        "regions": "Congo River communities (Central DRC)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[19.0, -1.0], [25.0, -1.0], [25.0, -3.0], [19.0, -3.0], [19.0, -1.0]]]
+                    }
+                },
+
+                // BEFALE
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Befale",
+                        "speakers": "319,887",
+                        "percentage": "100%+ in regions",
+                        "description": "Bantu language of central DRC forest communities.",
+                        "regions": "Central Forest Region"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[20.0, -2.5], [24.0, -2.5], [24.0, -5.0], [20.0, -5.0], [20.0, -2.5]]]
+                    }
+                },
+
+                // IKELA
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Ikela",
+                        "speakers": "308,656",
+                        "percentage": "96%+ in regions",
+                        "description": "Bantu language of Mongo cluster. Central Congo Basin speaker community.",
+                        "regions": "Mongo region (Central DRC)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[19.5, -3.5], [23.5, -3.5], [23.5, -6.0], [19.5, -6.0], [19.5, -3.5]]]
+                    }
+                },
+
+                // BIKORO
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Bikoro",
+                        "speakers": "302,915",
+                        "percentage": "90%+ in regions",
+                        "description": "Bantu language of western-central DRC. Relates to Mongo peoples.",
+                        "regions": "Western-Central DRC"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[16.0, -3.5], [20.0, -3.5], [20.0, -6.0], [16.0, -6.0], [16.0, -3.5]]]
+                    }
+                },
+
+                // BUTA and OPALA (Sudanic/Nilotic languages)
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Buta / Opala",
+                        "speakers": "275,585 / 273,580",
+                        "percentage": "100%+ in regions",
+                        "description": "Languages of eastern DRC forest and savanna regions. Related to Nilotic and Sudanic families.",
+                        "regions": "Northeastern DRC (Oriental Province)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[26.0, 0.0], [30.0, 0.0], [30.0, 2.0], [26.0, 2.0], [26.0, 0.0]]]
+                    }
+                },
+
+                // KASANGULU (Lunda-related)
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Kasangulu",
+                        "speakers": "206,422",
+                        "percentage": "55%+ in regions",
+                        "description": "Bantu language related to Lunda Empire language group. Southern DRC.",
+                        "regions": "Southern DRC (Lunda territory)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[18.0, -10.0], [26.0, -10.0], [26.0, -13.5], [18.0, -13.5], [18.0, -10.0]]]
+                    }
+                },
+
+                // BOMONGO
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Bomongo",
+                        "speakers": "201,134",
+                        "percentage": "100%+ in regions",
+                        "description": "Bantu language of central forest regions. Part of broader Bantu language cluster.",
+                        "regions": "Central Forest Belt"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[21.0, -4.5], [25.0, -4.5], [25.0, -7.0], [21.0, -7.0], [21.0, -4.5]]]
+                    }
+                },
+
+                // YAHUMA
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Yahuma",
+                        "speakers": "170,475",
+                        "percentage": "90%+ in regions",
+                        "description": "Bantu language of eastern regions. Related to broader Bantu language families.",
+                        "regions": "Eastern DRC"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[26.0, -3.0], [30.0, -3.0], [30.0, -6.0], [26.0, -6.0], [26.0, -3.0]]]
+                    }
+                },
+
+                // LUKOLELA
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Lukolela",
+                        "speakers": "168,575",
+                        "percentage": "90%+ in regions",
+                        "description": "Language of Congo River communities. River-based trading populations.",
+                        "regions": "Congo River (Central section)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[17.0, -2.0], [21.0, -2.0], [21.0, -4.0], [17.0, -4.0], [17.0, -2.0]]]
+                    }
+                }
+            ]
+        };
+
+        // Comprehensive tribal/ethnic groups data for DRC (Berlin Conference era)
+        var tribalGroupsData = {
+            "type": "FeatureCollection",
+            "features": [
+                // BANTU GROUPS
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Kongo Kingdom",
+                        "category": "Bantu Group",
+                        "region": "Western DRC",
+                        "description": "Powerful kingdom centered on the Congo River mouth. Master traders and skilled in metallurgy. Controlled extensive trade networks.",
+                        "population": "~800,000 (1884)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[12.5, -4.0], [16.0, -4.0], [16.0, -7.5], [12.5, -7.5], [12.5, -4.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Luba Empire",
+                        "category": "Bantu Group", 
+                        "region": "Central-Southern DRC",
+                        "description": "Sophisticated centralized kingdom known for advanced political organization, art, and copper mining in Katanga region.",
+                        "population": "~1,200,000 (1884)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[22.0, -6.0], [27.0, -6.0], [27.0, -12.0], [22.0, -12.0], [22.0, -6.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Lunda Empire",
+                        "category": "Bantu Group",
+                        "region": "Southern DRC",
+                        "description": "Vast empire spanning DRC, Angola, and Zambia. Known for tributary system and long-distance trade routes.",
+                        "population": "~900,000 (1884)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[18.0, -8.0], [25.0, -8.0], [25.0, -13.5], [18.0, -13.5], [18.0, -8.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Mongo Peoples",
+                        "category": "Bantu Group",
+                        "region": "Central DRC Basin",
+                        "description": "Forest-dwelling communities in the Congo Basin. Expert hunters and gatherers with complex kinship systems.",
+                        "population": "~600,000 (1884)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[18.0, -2.0], [25.0, -2.0], [25.0, -6.0], [18.0, -6.0], [18.0, -2.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Kuba Kingdom",
+                        "category": "Bantu Group",
+                        "region": "South-Central DRC",
+                        "description": "Highly organized kingdom famous for elaborate art, textiles, and sophisticated court culture. Known for raffia cloth.",
+                        "population": "~200,000 (1884)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[19.0, -4.5], [22.0, -4.5], [22.0, -7.0], [19.0, -7.0], [19.0, -4.5]]]
+                    }
+                },
+                
+                // SUDANIC GROUPS
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Azande Confederation",
+                        "category": "Sudanic Group",
+                        "region": "Northern DRC",
+                        "description": "Warrior confederation known for iron working, military organization, and expansion southward from Sudan.",
+                        "population": "~400,000 (1884)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[24.0, 2.0], [30.0, 2.0], [30.0, -1.0], [24.0, -1.0], [24.0, 2.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Mangbetu Kingdom",
+                        "category": "Sudanic Group",
+                        "region": "Northeastern DRC",
+                        "description": "Sophisticated kingdom renowned for art, architecture, and court ceremonies. Known for elongated head binding practices.",
+                        "population": "~150,000 (1884)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[26.0, 1.0], [30.0, 1.0], [30.0, 4.0], [26.0, 4.0], [26.0, 1.0]]]
+                    }
+                },
+
+                // NILOTIC GROUPS
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Alur Chiefdoms",
+                        "category": "Nilotic Group",
+                        "region": "Eastern DRC (Lake Albert)",
+                        "description": "Nilotic pastoralists and fishermen around Lake Albert. Known for cattle herding and complex age-grade systems.",
+                        "population": "~80,000 (1884)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[29.5, 1.5], [31.0, 1.5], [31.0, 3.0], [29.5, 3.0], [29.5, 1.5]]]
+                    }
+                },
+
+                // PYGMY GROUPS
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Twa Forest Peoples",
+                        "category": "Pygmy Group",
+                        "region": "Central Congo Basin",
+                        "description": "Indigenous hunter-gatherers of the equatorial forest. Master archers and forest guides with extensive botanical knowledge.",
+                        "population": "~50,000 (1884)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[19.0, 0.0], [24.0, 0.0], [24.0, -3.0], [19.0, -3.0], [19.0, 0.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Mbuti Forest Communities",
+                        "category": "Pygmy Group",
+                        "region": "Eastern Forests (Ituri)",
+                        "description": "Forest-dwelling hunter-gatherers in the Ituri Forest. Known for net hunting and complex relationships with Bantu farmers.",
+                        "population": "~30,000 (1884)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[27.0, 0.5], [30.0, 0.5], [30.0, 2.5], [27.0, 2.5], [27.0, 0.5]]]
+                    }
+                },
+
+                // RIVER COMMUNITIES
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Bobangi River Traders",
+                        "category": "River Community",
+                        "region": "Congo River (Central)",
+                        "description": "Specialized river traders controlling commerce along the Congo River. Expert canoeists and middlemen in long-distance trade.",
+                        "population": "~100,000 (1884)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[16.0, 0.0], [20.0, 0.0], [20.0, -3.0], [16.0, -3.0], [16.0, 0.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Lokele Fisher Communities",
+                        "category": "River Community",
+                        "region": "Congo River (Eastern)",
+                        "description": "Riverine fishing communities along the middle Congo River. Known for sophisticated fishing techniques and river navigation.",
+                        "population": "~75,000 (1884)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[21.0, 0.5], [25.0, 0.5], [25.0, -2.0], [21.0, -2.0], [21.0, 0.5]]]
+                    }
+                },
+
+                // ADDITIONAL SIGNIFICANT GROUPS
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Songye Confederation",
+                        "category": "Bantu Group",
+                        "region": "Central-Eastern DRC",
+                        "description": "Confederation of chiefdoms known for mask-making, divination practices, and resistance to slave raiding.",
+                        "population": "~300,000 (1884)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[23.0, -4.0], [26.0, -4.0], [26.0, -7.0], [23.0, -7.0], [23.0, -4.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Tetela Peoples",
+                        "category": "Bantu Group",
+                        "region": "Central DRC",
+                        "description": "Agricultural communities known for palm oil production and later resistance to colonial rule under leaders like Patrice Lumumba's ancestors.",
+                        "population": "~250,000 (1884)"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[22.0, -2.0], [25.0, -2.0], [25.0, -4.5], [22.0, -4.5], [22.0, -2.0]]]
+                    }
+                }
+            ]
+        };
+
+        // Color coding function for languages
+        function getLanguageColor(name) {
+            // Lingala and trade languages
+            if (name === "Lingala") return '#4A90E2';
+            
+            // Ubangian languages
+            if (['Libenge', 'Yakoma'].includes(name)) return '#BD10E0';
+            
+            // River community languages
+            if (['Basoko', 'Lukolela'].includes(name)) return '#50E3C2';
+            
+            // Luba/Tshiluba and related
+            if (['Tshiluba', 'Kiluba', 'Kasangulu'].includes(name)) return '#7ED321';
+            
+            // Sudanic languages
+            if (['Djolu'].includes(name)) return '#F5A623';
+            
+            // Default Bantu
+            return '#7ED321';
+        }
+
+        // Style function for language groups
+        function languageGroupStyle(feature) {
+            return {
+                fillColor: getLanguageColor(feature.properties.name),
+                weight: 2,
+                opacity: 0.7,
+                color: '#333',
+                fillOpacity: 0.5
+            };
+        }
+
+        // Add language distribution layer
+        var languageLayer = L.geoJSON(languageDistributionData, {
+            style: languageGroupStyle,
+            onEachFeature: function(feature, layer) {
+                var props = feature.properties;
+                
+                // Create detailed popup content
+                var popupContent = `
+                    <div class="tribe-popup">
+                        <h4>${props.name}</h4>
+                        <div class="category">Language</div>
+                        <div class="region">${props.regions}</div>
+                        <div class="description"><strong>Speakers:</strong> ${props.speakers}</div>
+                        <div class="description"><strong>Coverage:</strong> ${props.percentage}</div>
+                        <div class="population">${props.description}</div>
+                    </div>
+                `;
+                
+                // Create tooltip for hover
+                layer.bindTooltip(
+                    `<div style="font-weight: bold;">${props.name}</div><div style="font-size: 11px;">${props.speakers} speakers</div>`,
+                    { sticky: false, direction: 'auto' }
+                );
+                
+                layer.bindPopup(popupContent);
+                
+                // Add hover effects
+                layer.on({
+                    mouseover: function(e) {
+                        var layer = e.target;
+                        layer.setStyle({
+                            weight: 3,
+                            fillOpacity: 0.75,
+                            opacity: 1.0
+                        });
+                        layer.bringToFront();
+                        // Show tooltip on hover
+                        if (layer.getTooltip()) {
+                            layer.openTooltip();
+                        }
+                    },
+                    mouseout: function(e) {
+                        var layer = e.target;
+                        layer.setStyle({
+                            weight: 2,
+                            fillOpacity: 0.5,
+                            opacity: 0.7
+                        });
+                        // Close tooltip
+                        if (layer.getTooltip()) {
+                            layer.closeTooltip();
+                        }
+                    }
+                });
+            }
+        }).addTo(map);
+
+        // Store layer references for toggling
+        window.languageLayer = languageLayer;
+        window.tribalLayer = null; // Will be set later
+
+        // Style function for tribal groups
+        function tribalGroupStyle(feature) {
+            return {
+                fillColor: getTribalColor(feature.properties.category),
+                weight: 2,
+                opacity: 0.8,
+                color: '#333',
+                dashArray: '3',
+                fillOpacity: 0.6
+            };
+        }
+
+        // Add tribal groups layer
+        var tribalLayer = L.geoJSON(tribalGroupsData, {
+            style: tribalGroupStyle,
+            onEachFeature: function(feature, layer) {
+                var props = feature.properties;
+                
+                // Create popup content
+                var popupContent = `
+                    <div class="tribe-popup">
+                        <h4>${props.name}</h4>
+                        <div class="category">${props.category}</div>
+                        <div class="region">${props.region}</div>
+                        <div class="description">${props.description}</div>
+                        <div class="population">${props.population}</div>
+                    </div>
+                `;
+                
+                layer.bindPopup(popupContent);
+                
+                // Add hover effects
+                layer.on({
+                    mouseover: function(e) {
+                        var layer = e.target;
+                        layer.setStyle({
+                            weight: 3,
+                            fillOpacity: 0.8
+                        });
+                        layer.bringToFront();
+                    },
+                    mouseout: function(e) {
+                        tribalLayer.resetStyle(e.target);
+                    }
+                });
+            }
+        }).addTo(map);
+
+        // Store tribal layer reference
+        window.tribalLayer = tribalLayer;
+
+        // Add layer toggle functionality
+        document.getElementById('languageLayerToggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                if (!map.hasLayer(languageLayer)) {
+                    languageLayer.addTo(map);
+                }
+            } else {
+                if (map.hasLayer(languageLayer)) {
+                    map.removeLayer(languageLayer);
+                }
+            }
+        });
+
+        document.getElementById('tribalLayerToggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                if (!map.hasLayer(tribalLayer)) {
+                    tribalLayer.addTo(map);
+                }
+            } else {
+                if (map.hasLayer(tribalLayer)) {
+                    map.removeLayer(tribalLayer);
+                }
+            }
+        });
+
+        // Fit map to tribal groups bounds
+        map.fitBounds(tribalLayer.getBounds());
+        
+        // Expose map for external access
+        window.map = map;
+    </script>
+</body>
+</html>

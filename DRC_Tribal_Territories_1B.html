@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>DRC Tribal Territories - 1B Layer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+        #map {
+            width: 100vw;
+            height: 100vh;
+        }
+        
+        .tribe-popup {
+            max-width: 280px;
+            font-family: Georgia, serif;
+        }
+        
+        .tribe-popup h4 {
+            margin: 0 0 8px 0;
+            color: #8B4513;
+            font-size: 16px;
+            border-bottom: 2px solid #D2B48C;
+            padding-bottom: 4px;
+        }
+        
+        .tribe-popup .region {
+            font-size: 12px;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 8px;
+        }
+        
+        .tribe-popup .description {
+            font-size: 13px;
+            line-height: 1.4;
+            color: #444;
+            margin-bottom: 8px;
+        }
+        
+        .tribe-popup .characteristics {
+            font-size: 11px;
+            color: #777;
+            background: #f9f9f9;
+            padding: 6px;
+            border-radius: 4px;
+            border-left: 3px solid #D2B48C;
+        }
+        
+        .legend {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+            font-family: Georgia, serif;
+            font-size: 12px;
+        }
+        
+        .legend h4 {
+            margin: 0 0 8px 0;
+            color: #333;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 4px 0;
+        }
+        
+        .legend-color {
+            width: 18px;
+            height: 14px;
+            margin-right: 8px;
+            border: 1px solid #333;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script>
+        // Initialize the map
+        var map = L.map('map').setView([-4.0, 21.7], 6);
+        
+        // Add CartoDB Light basemap
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© OpenStreetMap contributors © CARTO',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Tribal territories data based on historical Congo Belge map and ethnographic sources
+        var tribalData = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Bakongo",
+                        "region": "Lower Congo & Kinshasa",
+                        "category": "Bantu",
+                        "description": "Major Bantu-speaking group in western DRC, historically organized in the Kingdom of Kongo. Known for sophisticated political organization and trade networks.",
+                        "characteristics": "Matrilineal society, skilled in metalworking, agriculture, and river commerce."
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[12.5, -4.0], [16.5, -4.0], [16.5, -6.5], [12.5, -6.5], [12.5, -4.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Baluba",
+                        "region": "Kasai & Katanga",
+                        "category": "Bantu",
+                        "description": "One of the largest ethnic groups in DRC, traditionally centered in the Luba Empire. Renowned for their sophisticated political and religious systems.",
+                        "characteristics": "Complex chieftaincy system, expertise in mining and metallurgy, rich artistic traditions."
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[22.0, -6.0], [28.0, -6.0], [28.0, -11.5], [22.0, -11.5], [22.0, -6.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Mongo",
+                        "region": "Central Basin",
+                        "category": "Bantu",
+                        "description": "Forest-dwelling Bantu people occupying the central Congo Basin. Known for their adaptation to rainforest environment.",
+                        "characteristics": "Skilled hunters and gatherers, complex kinship systems, traditional forest medicine."
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[18.0, -2.0], [24.0, -2.0], [24.0, -6.0], [18.0, -6.0], [18.0, -2.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Azande",
+                        "region": "Northern DRC",
+                        "category": "Sudanic",
+                        "description": "Sudanic-speaking people known for their military organization and expansion southward from Sudan region.",
+                        "characteristics": "Centralized kingdom, warrior culture, distinctive art and crafts."
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[24.0, 2.0], [30.0, 2.0], [30.0, -1.0], [24.0, -1.0], [24.0, 2.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Mangbetu",
+                        "region": "Northeastern DRC",
+                        "category": "Sudanic",
+                        "description": "Sudanic people known for their sophisticated court culture and distinctive artistic achievements.",
+                        "characteristics": "Elaborate royal ceremonies, skilled in sculpture and metalwork, distinctive head-shaping practices."
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[27.0, 1.0], [31.0, 1.0], [31.0, 4.0], [27.0, 4.0], [27.0, 1.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Bashi",
+                        "region": "South Kivu",
+                        "category": "Bantu",
+                        "description": "Bantu people of the eastern highlands, known for their agricultural terracing and cattle-keeping.",
+                        "characteristics": "Advanced agricultural techniques, traditional monarchy (Mwami system), highland adaptation."
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[28.0, -3.0], [30.5, -3.0], [30.5, -5.0], [28.0, -5.0], [28.0, -3.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Nande",
+                        "region": "North Kivu",
+                        "category": "Bantu",
+                        "description": "Mountain-dwelling Bantu people known for their agricultural innovations and trade networks.",
+                        "characteristics": "Terrace farming, long-distance trade, traditional kingdoms, coffee cultivation."
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[29.0, -0.5], [30.5, -0.5], [30.5, -2.5], [29.0, -2.5], [29.0, -0.5]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Batwa/Twa",
+                        "region": "Forest regions (scattered)",
+                        "category": "Pygmy",
+                        "description": "Indigenous forest people, historically hunter-gatherers with deep knowledge of forest ecosystems.",
+                        "characteristics": "Traditional forest dwellers, extensive ecological knowledge, marginalized by agricultural expansion."
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[20.0, -1.0], [26.0, -1.0], [26.0, -4.0], [20.0, -4.0], [20.0, -1.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Bakuba/Bushong",
+                        "region": "Kasai region",
+                        "category": "Bantu",
+                        "description": "Sophisticated Bantu kingdom known for elaborate court culture and artistic achievements.",
+                        "characteristics": "Royal regalia, complex political system, renowned sculpture and textile arts."
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[19.5, -4.5], [22.5, -4.5], [22.5, -7.0], [19.5, -7.0], [19.5, -4.5]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Bangala",
+                        "region": "Middle Congo River",
+                        "category": "Bantu",
+                        "description": "River-dwelling Bantu people, skilled in fishing and river transport. Lingua franca speakers.",
+                        "characteristics": "River expertise, fishing techniques, trade intermediaries, language preservation."
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[16.5, 0.0], [21.0, 0.0], [21.0, -2.5], [16.5, -2.5], [16.5, 0.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Balunda",
+                        "region": "Southern Katanga",
+                        "category": "Bantu",
+                        "description": "Bantu people extending into Angola, known for their expansion and state formation.",
+                        "characteristics": "Expansionist history, traditional leadership, cross-border connections."
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[22.0, -9.0], [26.0, -9.0], [26.0, -12.0], [22.0, -12.0], [22.0, -9.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Banyamulenge",
+                        "region": "High plateaus of South Kivu",
+                        "category": "Bantu",
+                        "description": "Tutsi pastoralists who migrated from Rwanda, known for cattle herding in highland areas.",
+                        "characteristics": "Pastoral lifestyle, highland adaptation, complex ethnic identity, cattle culture."
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[28.5, -3.5], [29.5, -3.5], [29.5, -4.5], [28.5, -4.5], [28.5, -3.5]]]
+                    }
+                }
+            ]
+        };
+
+        // Color scheme based on ethnic/linguistic categories
+        function getColor(category) {
+            switch(category) {
+                case 'Bantu': return '#8FBC8F';      // Forest Green
+                case 'Sudanic': return '#D2691E';    // Chocolate
+                case 'Pygmy': return '#9370DB';      // Medium Purple
+                default: return '#CD853F';           // Peru
+            }
+        }
+
+        // Style function for tribal territories
+        function tribalStyle(feature) {
+            return {
+                fillColor: getColor(feature.properties.category),
+                weight: 2,
+                opacity: 0.8,
+                color: '#654321',
+                dashArray: '',
+                fillOpacity: 0.6
+            };
+        }
+
+        // Add tribal territories layer
+        var tribalLayer = L.geoJSON(tribalData, {
+            style: tribalStyle,
+            onEachFeature: function(feature, layer) {
+                var props = feature.properties;
+                
+                // Create popup content
+                var popupContent = `
+                    <div class="tribe-popup">
+                        <h4>${props.name}</h4>
+                        <div class="region">${props.region}</div>
+                        <div class="description">${props.description}</div>
+                        <div class="characteristics"><strong>Characteristics:</strong> ${props.characteristics}</div>
+                    </div>
+                `;
+                
+                layer.bindPopup(popupContent);
+                
+                // Add hover effects
+                layer.on({
+                    mouseover: function(e) {
+                        var layer = e.target;
+                        layer.setStyle({
+                            weight: 3,
+                            fillOpacity: 0.8
+                        });
+                        
+                        // Show tooltip with tribe name
+                        layer.bindTooltip(props.name, {
+                            permanent: false,
+                            direction: 'center',
+                            className: 'tribal-tooltip'
+                        }).openTooltip();
+                    },
+                    mouseout: function(e) {
+                        tribalLayer.resetStyle(e.target);
+                        layer.closeTooltip();
+                    }
+                });
+            }
+        }).addTo(map);
+
+        // Add legend
+        var legend = L.control({position: 'topright'});
+        legend.onAdd = function (map) {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = `
+                <h4>Tribal Groups (1-B Layer)</h4>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #8FBC8F;"></div>
+                    <span>Bantu Peoples</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #D2691E;"></div>
+                    <span>Sudanic Peoples</span>
+                </div>
+                <div class="legend-item">
+                    <div class="legend-color" style="background-color: #9370DB;"></div>
+                    <span>Pygmy Peoples</span>
+                </div>
+            `;
+            return div;
+        };
+        legend.addTo(map);
+
+        // Add title overlay
+        var titleControl = L.control({position: 'topleft'});
+        titleControl.onAdd = function(map) {
+            var div = L.DomUtil.create('div', 'legend');
+            div.innerHTML = `
+                <h4 style="margin: 0; color: #8B4513;">Congo Tribal Territories</h4>
+                <div style="font-size: 11px; color: #666;">Based on historical ethnographic data</div>
+            `;
+            return div;
+        };
+        titleControl.addTo(map);
+
+    </script>
+</body>
+</html>

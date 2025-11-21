@@ -1,0 +1,505 @@
+{
+  "type": "FeatureCollection",
+  "name": "Luba Kingdom and Lunda Empire Historical Territories",
+  "crs": {
+    "type": "name",
+    "properties": {
+      "name": "EPSG:4326"
+    }
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": 1,
+      "properties": {
+        "name": "Luba Kingdom - Core Territory",
+        "period": "1585-1889",
+        "period_peak": "1700-1860",
+        "capital": "Mwibele",
+        "capital_coords": [-8.2, 26.8],
+        "government": "Sacred Monarchy (Mulopwe)",
+        "population_estimate": "~1,000,000 at peak",
+        "territory_area_km2": "~200,000-250,000",
+        "primary_economy": ["salt", "copper", "iron", "fish", "trade redistribution"],
+        "decline_cause": "East African slave/ivory trade disruption, 1889 succession dispute",
+        "scholarly_source": "Reefe, Thomas Q. (1981) - The Rainbow and the Kings"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [23.5, -5.8],
+            [27.0, -5.8],
+            [27.5, -6.5],
+            [27.3, -7.2],
+            [26.5, -8.0],
+            [25.0, -8.5],
+            [23.5, -8.2],
+            [23.2, -6.5],
+            [23.5, -5.8]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 2,
+      "properties": {
+        "name": "Lunda Empire - Core Territory (Western Lunda)",
+        "period": "1600-1887",
+        "period_peak": "1700-1880",
+        "capital_primary": "Musumba",
+        "capital_primary_coords": [24.5, -7.5],
+        "capital_eastern": "Kasongo",
+        "capital_eastern_coords": [26.65, -4.45],
+        "government": "Confederation (Mwata Yamvo as paramount ruler)",
+        "population_base": "~175,000-200,000 core",
+        "vassal_states": "Multiple, paying tribute",
+        "territory_area_km2": "~300,000 at peak (1800-1850)",
+        "primary_economy": ["tribute system", "ivory", "copper", "salt"],
+        "decline_cause": "Chokwe firearms invasions, 1880s-1887",
+        "scholarly_source": "Thornton, John K. (2020) - A History of West Central Africa to 1850"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [21.0, -5.5],
+            [28.0, -5.5],
+            [28.5, -7.0],
+            [28.0, -8.5],
+            [27.0, -9.5],
+            [25.0, -10.0],
+            [23.0, -10.2],
+            [21.5, -9.0],
+            [21.0, -6.0],
+            [21.0, -5.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 3,
+      "properties": {
+        "name": "Fire Kingdom of Kyombo Mkubwa",
+        "type": "vassal_state",
+        "parent_state": "Luba Kingdom",
+        "period": "Before 1810 - 1870s",
+        "founder": "Son of King Ilunga Sungu",
+        "territory": "Hemba and Tumbwe lands",
+        "status": "Vassal with 'sacred fire' from Luba king",
+        "significance": "Eastern frontier defense and Luba expansion vector"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [26.5, -7.5],
+            [27.5, -7.5],
+            [27.5, -8.5],
+            [26.5, -8.5],
+            [26.5, -7.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 4,
+      "properties": {
+        "name": "Kasongo - Eastern Lunda Capital",
+        "type": "capital_city",
+        "period_prominence": "1850-1893",
+        "modern_province": "Maniema Province, DRC",
+        "coordinates": [26.65, -4.45],
+        "population_regular": "~20,000",
+        "population_during_crisis": "~60,000+",
+        "significance": "Major Lualaba River trading entrepôt, center of Arab-Swahili influence",
+        "rulers": "Sefu bin Hamid (son of Tippu Tip)",
+        "conquest_date": "April 22, 1893 (Congo Free State)",
+        "historical_name_alternative": "Piani Kasongo",
+        "elevation_m": 666
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [26.65, -4.45]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 5,
+      "properties": {
+        "name": "Mwibele - Luba Kingdom Capital",
+        "type": "capital_city",
+        "period_prominence": "1500-1889",
+        "location_description": "Near Lake Boya, central Luba heartland",
+        "modern_province": "Haut-Lomami Province, DRC",
+        "coordinates": [26.8, -8.2],
+        "significance": "Primary administrative and sacred center of Luba kingdom",
+        "relationship_to_geography": "Central Upemba Depression, near water resources"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [26.8, -8.2]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 6,
+      "properties": {
+        "name": "Nyangwe - Major Trading Port",
+        "type": "trading_center",
+        "period_prominence": "1800-1893",
+        "modern_location": "Eastern DRC, on Lualaba River",
+        "coordinates": [25.8, -4.5],
+        "population_prewar": "~30,000 (before 1893)",
+        "economic_role": "Primary slave and ivory trading port",
+        "connection_to_trade": "Gateway between inland Lunda territory and Zanzibar networks",
+        "destruction": "March-April 1893 by Congo Free State forces under Francis Dhanis",
+        "post_destruction_quote": "Had been reduced from a well-built town of about thirty thousand inhabitants to one large fortified house with a soldiers' camp around it (Sidney Langford Hinde, 1897)"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [25.8, -4.5]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 7,
+      "properties": {
+        "name": "Musumba - Western Lunda Capital",
+        "type": "capital_city",
+        "period_prominence": "1600-1880s",
+        "location_description": "Central-western Katanga, Lunda core territory",
+        "coordinates": [24.5, -7.5],
+        "status": "Royal capital (musumba)",
+        "architectural_features": ["Moated court", "Earthen walls", "Paved roads", "Ritual courtyards"],
+        "significance": "Seat of Mwata Yamvo (paramount ruler) and symbol of Lunda confederation",
+        "government": "Administrative and ritual center for tributary system"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [24.5, -7.5]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 8,
+      "properties": {
+        "name": "Kazembe Kingdom (Eastern Lunda)",
+        "type": "vassal_state",
+        "parent_state": "Lunda Empire",
+        "period": "1700-1900+",
+        "founder": "Mwata Kazembe (Lunda warrior-chief)",
+        "location": "Luapula River valley",
+        "territory_bounds": "North Zambia, SE DRC",
+        "significance": "Connection to Lake Tanganyika and southern Indian Ocean trade networks",
+        "rulers": "Autonomous Lunda dynasty"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [28.5, -10.0],
+            [30.0, -10.0],
+            [30.0, -11.5],
+            [28.5, -11.5],
+            [28.5, -10.0]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 9,
+      "properties": {
+        "name": "Western Trade Corridor",
+        "type": "trade_route",
+        "period": "1500-1890s",
+        "direction": "Luba heartland westward to Atlantic",
+        "path": "Kasai River -> Congo River -> Stanley Pool -> Atlantic ports",
+        "commodities": ["salt", "copper", "iron", "palm oil", "ivory", "enslaved people"],
+        "economic_importance": "Primary outlet for Luba exports; later redirected westbound Arab/Swahili trade",
+        "navigable_sections": "Multiple; limited by cataracts and rapids",
+        "colonial_impact": "Primary redirected route post-1893 (replacing eastern routes)"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [19.0, -11.6],
+          [20.8, -5.2],
+          [20.5, -4.8],
+          [16.2, -3.2],
+          [15.3, -4.3],
+          [12.0, -6.0]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 10,
+      "properties": {
+        "name": "Eastern Trade Corridor (Lualaba-Nyangwe Route)",
+        "type": "trade_route",
+        "period": "1500-1894",
+        "direction": "Lunda interior to Indian Ocean via Lualaba River",
+        "path": "Bukama -> Kasongo -> Nyangwe -> Stanley Falls -> Zanzibar connection",
+        "major_cities": ["Bukama", "Kabalo", "Kasongo", "Nyangwe", "Kisangani"],
+        "commodities": ["ivory (primary)", "enslaved people", "copper", "salt"],
+        "economic_importance": "Direct connection to Arab-Swahili networks and Zanzibar sultanate",
+        "navigation_challenges": ["Portes d'Enfer gorge", "Boyoma Falls (7 cataracts)"],
+        "colonial_terminus": "Congo Free State conquest, 1892-1894"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [26.2, -6.7],
+          [25.3, -5.7],
+          [26.65, -4.45],
+          [25.8, -4.5],
+          [24.8, -1.0],
+          [25.2, -0.5]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 11,
+      "properties": {
+        "name": "Southern Trade Corridor (Kazembe-Lake Tanganyika Route)",
+        "type": "trade_route",
+        "period": "1700-1890s",
+        "direction": "Kazembe to Indian Ocean via Lake Tanganyika",
+        "path": "Kazembe -> Lake Tanganyika western shore -> Ujiji -> Zanzibar",
+        "commodities": ["copper", "ivory", "salt"],
+        "significance": "Kazembe connection to Arab-Swahili traders and Indian Ocean networks",
+        "connection_point": "Ujiji - major regional trading hub"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [28.5, -10.0],
+          [29.0, -8.5],
+          [29.1, -6.8],
+          [40.2, -6.8]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 12,
+      "properties": {
+        "name": "Upemba Depression",
+        "type": "geographic_feature",
+        "classification": "Marshy grassland depression with swamp systems",
+        "elevation_m": "400-600m",
+        "significance": "Economic base of Luba Kingdom - fishing center, agricultural support",
+        "archaeological_importance": "Continuous occupation since 4th century AD",
+        "settlement_pattern": "Dense populations in river valleys",
+        "resources": ["fish", "agricultural products", "salt (extraction sites)"]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [26.0, -7.5],
+            [27.5, -7.5],
+            [27.5, -8.5],
+            [26.0, -8.5],
+            [26.0, -7.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 13,
+      "properties": {
+        "name": "Katanga Plateau",
+        "type": "geographic_feature",
+        "classification": "Highland plateau",
+        "elevation_m": "1200-1400m",
+        "natural_resources": ["copper deposits", "cobalt"],
+        "significance": "Mineral wealth source for Luba and Lunda trade",
+        "relationship_to_states": "Resource base for metallurgy and prestige trade goods"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [25.0, -8.0],
+            [28.0, -8.0],
+            [28.0, -9.5],
+            [25.0, -9.5],
+            [25.0, -8.0]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 14,
+      "properties": {
+        "name": "Lualaba River",
+        "type": "river_system",
+        "length_km": 1800,
+        "direction_flow": "South to north, ending at Kisangani where it becomes Congo River",
+        "source": "Katanga Plateau (headwaters near Lubumbashi/Musofi)",
+        "source_elevation_m": 1400,
+        "major_tributaries": ["Ulindi", "Luama", "Lukuga", "Lufira", "Lubudi", "Luvua"],
+        "role_in_states": "Eastern boundary of Luba; eastern boundary/trade route for Lunda",
+        "navigable_sections": [
+          {"name": "Bukama to Kasongo", "distance_km": 640},
+          {"name": "Kasongo to Kibombo", "distance_km": 100},
+          {"name": "Kindu to Boyoma Falls", "distance_km": 300}
+        ],
+        "navigation_obstacles": ["Portes d'Enfer gorge", "Boyoma Falls (7 cataracts over 100 km)"],
+        "key_cities": ["Bukama", "Kabalo", "Kasongo", "Kindu", "Kisangani"]
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [26.0, -8.5],
+          [26.2, -6.7],
+          [25.3, -5.7],
+          [26.65, -4.45],
+          [25.8, -4.5],
+          [24.8, -1.0],
+          [25.2, -0.5]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 15,
+      "properties": {
+        "name": "Kasai River",
+        "type": "river_system",
+        "length_km": 2272,
+        "direction_flow": "North and west, joining Congo River",
+        "source": "Bié Plateau, Angola",
+        "source_coordinates": [19.0, -11.6],
+        "source_elevation_m": 1300,
+        "major_tributaries": ["Kwilu-Kwango (1702 km)", "Lulua (1184 km)", "Sankuru (1280 km)", "Loange (865 km)"],
+        "role_in_states": "Western boundary and trade route for Luba Kingdom",
+        "basin_size_km2": 884376,
+        "economic_importance": "Salt redistribution; diamond deposits in lower basin (Kwango valley)",
+        "trade_historical_period": "Slave route during 18th-19th centuries via Kwango tributary",
+        "navigable_characteristics": "Clear of obstacles; very navigable tributaries"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [19.0, -11.6],
+          [19.5, -10.0],
+          [20.0, -8.0],
+          [20.5, -5.5],
+          [20.8, -5.2],
+          [16.2, -3.2]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 16,
+      "properties": {
+        "name": "Lake Tanganyika",
+        "type": "water_body",
+        "surface_coordinates": [-9.2, 31.0],
+        "northern_shore_coordinates": [-4.5, 28.3],
+        "role_in_states": "Eastern boundary of Lunda territories; separate trade network via Ujiji",
+        "significance": "Connection point to Zanzibar and Arab-Swahili trade",
+        "tributaries": ["Lukuga River (from Hemba territories)", "Luapula River (from Kazembe)"]
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [28.3, -4.5],
+            [31.0, -4.5],
+            [31.0, -9.2],
+            [28.3, -9.2],
+            [28.3, -4.5]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 17,
+      "properties": {
+        "name": "Lake Upemba / Lake Kisale",
+        "type": "water_body",
+        "role_in_states": "Economic fishing center, supported dense Luba populations",
+        "location": "Central Upemba Depression",
+        "significance": "Primary food source (dried fish) for trade and consumption"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [26.5, -7.8],
+            [27.0, -7.8],
+            [27.0, -8.2],
+            [26.5, -8.2],
+            [26.5, -7.8]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 18,
+      "properties": {
+        "name": "Lake Boya",
+        "type": "water_body",
+        "role_in_states": "Sacred site; capital location (Mwibele)",
+        "location": "Central Luba heartland",
+        "significance": "Religious significance and administrative center"
+      },
+      "geometry": {
+        "type": "Point",
+        "coordinates": [26.8, -8.2]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 19,
+      "properties": {
+        "name": "Lukuga River",
+        "type": "river",
+        "source": "Lake Tanganyika (drains the lake northward)",
+        "flow_direction": "North",
+        "role_in_states": "Northern boundary of Hemba fire kingdom territories",
+        "significance": "Connection between Lake Tanganyika and Hemba/Luba territories"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [29.1, -8.5],
+          [28.8, -8.0],
+          [28.6, -7.5]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "id": 20,
+      "properties": {
+        "name": "Luvua River",
+        "type": "river",
+        "role_in_states": "Southern boundary of Hemba fire kingdom territories",
+        "significance": "Marked southern frontier of Luba expansion eastward"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [29.5, -9.0],
+          [29.0, -8.7],
+          [28.8, -8.5]
+        ]
+      }
+    }
+  ]
+}

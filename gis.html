@@ -1,0 +1,1379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Atlas of Imagined Nations – Wireframe</title>
+  <style>
+    :root {
+      --bg: #f7f7f7;
+      --border: #222;
+      --accent: #111;
+      --muted: #777;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      background: var(--bg);
+      color: #111;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      padding: 16px;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 1100px;
+      border: 2px solid var(--border);
+      background: white;
+      display: flex;
+      flex-direction: column;
+    }
+
+    header {
+      padding: 12px 16px;
+      border-bottom: 2px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    header h1 {
+      font-size: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    header .tagline {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    main {
+      flex: 1;
+      display: flex;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .screen {
+      position: absolute;
+      inset: 0;
+      padding: 18px 20px;
+      display: none;
+    }
+
+    .screen.active {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .two-column {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: 16px;
+      height: 100%;
+    }
+
+    .panel {
+      border: 2px solid var(--border);
+      padding: 14px;
+      position: relative;
+      background-image: linear-gradient(
+          0deg,
+          rgba(0, 0, 0, 0.06) 1px,
+          transparent 1px
+        ),
+        linear-gradient(
+          90deg,
+          rgba(0, 0, 0, 0.06) 1px,
+          transparent 1px
+        );
+      background-size: 16px 16px;
+    }
+
+    .panel-label {
+      position: absolute;
+      top: -10px;
+      left: 10px;
+      padding: 0 6px;
+      background: white;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      z-index: 100;
+    }
+
+    h2.section-title {
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 13px;
+      line-height: 1.4;
+      margin-bottom: 8px;
+    }
+
+    .prompt {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .input-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 6px;
+    }
+
+    input[type="text"] {
+      flex: 1;
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      font-size: 13px;
+    }
+
+    button {
+      padding: 6px 10px;
+      border: 1px solid var(--border);
+      background: white;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #eee;
+    }
+
+    .meta-list {
+      font-size: 12px;
+      list-style: none;
+      margin-top: 8px;
+    }
+
+    .meta-list li {
+      margin-bottom: 4px;
+    }
+
+    .meta-label {
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+    }
+
+    /* Global map view */
+    .map-wrapper {
+      display: grid;
+      grid-template-rows: auto 1fr auto;
+      height: 100%;
+      gap: 10px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+    }
+
+    .top-bar span {
+      color: var(--muted);
+    }
+
+    .wire-map {
+      border: 2px dashed var(--border);
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(2, 1fr);
+      gap: 6px;
+      padding: 10px;
+      position: relative;
+      background: repeating-linear-gradient(
+        -45deg,
+        #fafafa,
+        #fafafa 6px,
+        #f0f0f0 6px,
+        #f0f0f0 12px
+      );
+    }
+
+    .wire-region {
+      border: 1px solid var(--border);
+      font-size: 11px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 4px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.7);
+    }
+
+    .wire-region.active {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .wire-region span {
+      pointer-events: none;
+    }
+
+    .timeline-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+    }
+
+    .timeline-row input[type="range"] {
+      flex: 1;
+    }
+
+    .chip {
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Country view wireframe */
+    .country-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+      gap: 16px;
+      height: 100%;
+    }
+
+    .country-map {
+      border: 2px dashed var(--border);
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+      gap: 6px;
+      padding: 10px;
+      background: repeating-linear-gradient(
+        90deg,
+        #fafafa,
+        #fafafa 6px,
+        #f0f0f0 6px,
+        #f0f0f0 12px
+      );
+      font-size: 11px;
+    }
+
+    .country-current,
+    .country-historic {
+      border: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .webmap-embedded {
+      position: absolute;
+      inset: 0;
+      border: none;
+      width: 100%;
+      height: 100%;
+    }
+
+    .country-label {
+      position: absolute;
+      top: 4px;
+      left: 6px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 1px 4px;
+    }
+
+    .patchwork {
+      position: absolute;
+      inset: 16px 16px 10px 16px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-template-rows: repeat(3, 1fr);
+      gap: 3px;
+    }
+
+    .patch {
+      border: 1px solid #999;
+      background: rgba(255, 204, 0, 0.1);
+    }
+
+    .country-sidebar {
+      font-size: 12px;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .country-sidebar h3 {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    .country-meta {
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+
+    .story-block {
+      border-top: 1px solid #ccc;
+      padding-top: 8px;
+      margin-top: 8px;
+      flex: 1;
+      overflow: auto;
+    }
+
+    .story-block h4 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 4px;
+    }
+
+    footer {
+      border-top: 2px solid var(--border);
+      padding: 6px 10px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      display: flex;
+      justify-content: space-between;
+      color: var(--muted);
+    }
+
+    .link-button {
+      border-bottom: 1px solid currentColor;
+      cursor: pointer;
+    }
+
+    .response-item {
+      padding: 6px 8px;
+      margin-bottom: 4px;
+      background: rgba(0, 0, 0, 0.02);
+      border-left: 2px solid #999;
+      font-size: 11px;
+      line-height: 1.3;
+    }
+
+    .response-text {
+      font-style: italic;
+      color: #333;
+      margin-bottom: 2px;
+    }
+
+    .response-time {
+      font-size: 10px;
+      color: #999;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    /* Control bar for country view */
+    .control-bar {
+      display: flex;
+      gap: 4px;
+      padding: 8px;
+      border: 1px solid var(--border);
+      background: white;
+      width: fit-content;
+    }
+
+    .control-btn {
+      width: 24px;
+      height: 24px;
+      border: 1px solid var(--border);
+      background: white;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .control-btn:hover {
+      background: #eee;
+    }
+
+    .control-btn.active-story {
+      background: var(--accent);
+      color: white;
+    }
+
+    .control-btn.active-variant {
+      background: var(--accent);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>Atlas of Imagined Nations</h1>
+    <div class="tagline">Wireframe – GIS for Design Practices</div>
+  </header>
+
+  <main>
+    <!-- Screen 1: Intro -->
+    <section id="screen-intro" class="screen active">
+      <div class="two-column">
+        <div class="panel">
+          <div class="panel-label">01 / Prompt</div>
+          <h2 class="section-title">Entry Question</h2>
+          <p class="prompt">What is your idea of a nation?</p>
+          <p style="font-size:12px;">
+            Type a short phrase below. The atlas will carry this response
+            into later views as a quiet annotation of every map.
+          </p>
+          <div class="input-row">
+            <input
+              id="nation-input"
+              type="text"
+              placeholder="ex. a moving border, a shared language, a myth..."
+            />
+            <button id="start-button">Begin</button>
+          </div>
+          <p class="note">
+            This screen becomes a static card in the final atlas PDF.
+          </p>
+          <div id="responses-container" style="margin-top: 12px; border-top: 1px solid #ddd; padding-top: 8px;">
+            <p class="meta-label">Previous responses with date and time</p>
+            <div id="responses-list" style="max-height: 200px; overflow-y: auto; font-size: 11px;"></div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-label">Project Notes</div>
+          <h2 class="section-title">Scope, Data, Questions</h2>
+          <ul class="meta-list">
+            <li><span class="meta-label">Historical Focus</span><br/>
+              South Asia (partition, linguistic nationalism); Central Europe (post-WWI borders).
+            </li>
+            <li><span class="meta-label">Datasets</span><br/>
+              CShapes (1945–2016), archival maps, communication networks, media flows.
+            </li>
+            <li><span class="meta-label">Core Question</span><br/>
+              How do shifting borders and digital networks reshape what counts as a “nation”?
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 2: Global view -->
+    <section id="screen-global" class="screen">
+      <div class="two-column">
+        <div class="panel">
+          <div class="panel-label">02 / Global Atlas</div>
+          <div class="map-wrapper">
+            <div class="top-bar">
+              <div>
+                <span>View:</span> World without boundaries → assembled over time
+              </div>
+              <div class="chip" id="year-chip">Year: 1950</div>
+            </div>
+
+            <div class="wire-map" id="wire-map">
+              <div class="wire-region" data-country="south-asia">
+                <span>Region A<br/>South Asia</span>
+              </div>
+              <div class="wire-region" data-country="central-europe">
+                <span>Region B<br/>Central Europe</span>
+              </div>
+              <div class="wire-region" data-country="africa-congo">
+                <span>Region C<br/>Congo</span>
+              </div>
+              <div class="wire-region" data-country="custom-new">
+                <span>Region D<br/>New “Network Nation”</span>
+              </div>
+              <div class="wire-region">
+                <span>Placeholder<br/>Ocean / void</span>
+              </div>
+              <div class="wire-region">
+                <span>Placeholder<br/>Archipelago</span>
+              </div>
+              <div class="wire-region">
+                <span>Placeholder<br/>Polar zone</span>
+              </div>
+              <div class="wire-region">
+                <span>Placeholder<br/>Data void</span>
+              </div>
+            </div>
+
+            <div class="timeline-row">
+              <span>Timeline</span>
+              <input
+                id="year-slider"
+                type="range"
+                min="1950"
+                max="2025"
+                step="25"
+                value="1950"
+              />
+              <span id="timeline-year">1950</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="panel-label">Reading the Map</div>
+          <h2 class="section-title">Narrative Layer</h2>
+          <p id="global-description" style="min-height:4em;">
+            1950: Post-war borders have just solidified. Decolonization movements
+            are beginning; many nations exist only as proposals, negotiations, or
+            imagined futures.
+          </p>
+          <p class="meta-label" style="margin-top:10px;">Your idea of a nation</p>
+          <p id="user-idea" class="note">Answer from Screen 01 will appear here.</p>
+
+          <p class="meta-label" style="margin-top:10px;">Interaction</p>
+          <p style="font-size:12px;">
+            • Drag the timeline to watch how the description of the world changes.<br/>
+            • Click a region in the wireframe world to open a country-level story.
+          </p>
+
+          <div style="margin-top:auto; display:flex; justify-content:space-between; align-items:center;">
+            <span class="note">Wireframe only – real maps & datasets come later.</span>
+            <button id="to-intro" style="font-size:10px;">Back to Question</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Screen 3: Country view -->
+    <section id="screen-country" class="screen">
+      <div class="country-layout">
+        <div class="panel">
+          <div class="panel-label">03 / Country Story</div>
+          <div class="country-map" id="country-map-container">
+            <div class="country-current">
+              <div class="country-label">Current boundary – 2025</div>
+              <!-- simple outline rectangle -->
+            </div>
+            <div class="country-historic">
+              <div class="country-label">Historic patchwork</div>
+              <div class="patchwork">
+                <div class="patch"></div><div class="patch"></div><div class="patch"></div><div class="patch"></div>
+                <div class="patch"></div><div class="patch"></div><div class="patch"></div><div class="patch"></div>
+                <div class="patch"></div><div class="patch"></div><div class="patch"></div><div class="patch"></div>
+              </div>
+            </div>
+          </div>
+          <iframe id="webmap-iframe" style="display:none; width:100%; height:100%; border:none; position:absolute; top:0; left:0;"></iframe>
+          <div id="placeholder-map-container" style="display:none; position:absolute; inset:0; background:white; border:none; padding:20px; overflow-y:auto;">
+            <div style="text-align:center; color:#999; font-size:13px; font-family:system-ui;">
+              <p style="margin-top:40%; font-size:14px; font-weight:bold; color:#666;">Interactive Map</p>
+              <p style="margin-top:10px;">Webmap for this region coming soon</p>
+              <p style="font-size:11px; margin-top:20px; color:#bbb;">Data in preparation</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel country-sidebar">
+          <div class="panel-label">Narrative</div>
+          <h3 id="country-name">Region name</h3>
+          <p class="country-meta" id="country-meta">
+            Placeholder text about why this case matters.
+          </p>
+
+          <div class="story-block">
+            <h4>Historic timeline</h4>
+            <p id="country-history">
+              1900 → 1950 → 2000: outline of key boundary shifts, partitions,
+              or unions. Each node here will eventually correspond to a frame
+              in the temporal GIS.
+            </p>
+
+            <h4 style="margin-top:10px;">Participation score</h4>
+            <p id="country-score">
+              People’s involvement in national identity: [wireframe scale from
+              imposed &gt; negotiated &gt; self-determined]. Will be quantified later.
+            </p>
+
+            <h4 style="margin-top:10px;">Your idea of a nation (overlay)</h4>
+            <p id="country-idea" class="note">
+              This is where your initial phrase reappears as an annotation.
+            </p>
+          </div>
+
+          <div style="margin-top:8px; display:flex; justify-content:flex-start; align-items:center;">
+            <div class="control-bar">
+              <button class="control-btn story-btn" data-story="1">1</button>
+              <button class="control-btn story-btn" data-story="2">2</button>
+              <button class="control-btn story-btn" data-story="3">3</button>
+              <button class="control-btn">+</button>
+            </div>
+          </div>
+
+          <div style="margin-top:4px; display:flex; justify-content:flex-start; align-items:center;">
+            <div class="control-bar">
+              <button class="control-btn variant-btn" data-variant="A">A</button>
+              <button class="control-btn variant-btn" data-variant="B">B</button>
+              <button class="control-btn variant-btn" data-variant="C">C</button>
+              <button class="control-btn variant-btn" data-variant="D">D</button>
+              <button class="control-btn variant-btn" data-variant="E">E</button>
+              <button class="control-btn">></button>
+            </div>
+          </div>
+
+          <div style="margin-top:4px; display:flex; justify-content:space-between; align-items:center;">
+            <button id="back-to-global">← Back to world</button>
+            <span class="link-button" style="font-size:10px;">Open archival map stack ▸</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <span>Mockup only – no real spatial data yet.</span>
+    <span>GIS for Design Practices · Draft Atlas Wireframe</span>
+  </footer>
+</div>
+
+<script>
+  // --- Simple state ---
+  const screens = {
+    intro: document.getElementById("screen-intro"),
+    global: document.getElementById("screen-global"),
+    country: document.getElementById("screen-country"),
+  };
+
+  let userIdea = "";
+  let currentCountry = null;
+  let responses = JSON.parse(localStorage.getItem("atlasResponses")) || [];
+
+  const globalDescriptions = {
+    1950:
+      "1950: Post-war borders have just solidified. Decolonization movements are beginning; many nations exist only as proposals or negotiations.",
+    1975:
+      "1975: New states have appeared across Asia and Africa. Cold War alliances stretch across the map, cutting through older imperial geographies.",
+    2000:
+      "2000: Supranational unions and trade blocs overlay state borders. Digital networks start to matter as much as physical territory.",
+    2025:
+      "2025: Platform infrastructures, AI language models, and diasporic media flows redraw cultural boundaries beyond the nation-state.",
+  };
+
+  const countryData = {
+    "south-asia": {
+      name: "South Asia – Partition & Linguistic Nationalism",
+      meta:
+        "Focus on India, Pakistan, Bangladesh. CShapes + historical maps trace partition, secessions, and language-based state formation.",
+      history:
+        "1905: Bengal partition experiments. 1947: violent partition of British India. 1971: Bangladesh independence. 1950–present: internal linguistic re-drawing of Indian states.",
+      score:
+        "Participation mixes mass mobilization, imposed borders, and later democratic renegotiation through linguistic state movements.",
+    },
+    "central-europe": {
+      name: "Central Europe – Empires and Fractured Borders",
+      meta:
+        "Tracks the dissolution of Austro-Hungarian and Ottoman empires, redrawn borders after WWI and WWII, and more recent EU expansions.",
+      history:
+        "1918: empires dissolve. 1945: new socialist and capitalist blocs solidify. 1990s: borders re-open, some states re-emerge, others fragment.",
+      score:
+        "High density of imposed treaties with later periods of negotiated integration (Schengen, EU) that blur the national frame.",
+    },
+    "africa-congo": {
+      name: "Congo – Colonial Grids and Resource Borders",
+      meta:
+        "Examines how a single colonial boundary enclosed multiple nations, and how resource frontiers shape today’s conflict maps.",
+      history:
+        "1880s: Congo Free State carved out as private colony. 1900–1960: borders fixed while extractive enclaves multiply. Post-independence: internal boundaries shift with conflicts.",
+      score:
+        "Low participation in initial nation-making; later attempts at re-framing identity emerge from below under intense pressure.",
+    },
+    "custom-new": {
+      name: "Network Nation – Open-Source, Post-Territorial",
+      meta:
+        "A speculative 'nation' assembled from language communities, fandoms, and platform infrastructures rather than contiguous land.",
+      history:
+        "2000: forums and early social media. 2010s: platform monopolies. 2020s: AI-mediated publics distributed across time zones.",
+      score:
+        "High participation in everyday identity-making, but governed by opaque infrastructures rather than democratic processes.",
+    },
+  };
+
+  // --- Utility to change screens ---
+  function setScreen(name) {
+    Object.values(screens).forEach((el) => el.classList.remove("active"));
+    screens[name].classList.add("active");
+  }
+
+  // --- Display responses with date and time ---
+  function displayResponses() {
+    const list = document.getElementById("responses-list");
+    list.innerHTML = "";
+    
+    if (responses.length === 0) {
+      list.innerHTML = "<p style='color: #999; font-size: 10px;'>No responses yet</p>";
+      return;
+    }
+    
+    responses.forEach((response) => {
+      const item = document.createElement("div");
+      item.className = "response-item";
+      
+      const text = document.createElement("div");
+      text.className = "response-text";
+      text.textContent = `"${response.text}"`;
+      
+      const time = document.createElement("div");
+      time.className = "response-time";
+      time.textContent = response.timestamp;
+      
+      item.appendChild(text);
+      item.appendChild(time);
+      list.appendChild(item);
+    });
+  }
+
+  // --- Utility to change screens ---
+  function setScreen(name) {
+    Object.values(screens).forEach((el) => el.classList.remove("active"));
+    screens[name].classList.add("active");
+  }
+
+  // --- Intro events ---
+  document.getElementById("start-button").addEventListener("click", () => {
+    const input = document.getElementById("nation-input");
+    userIdea = input.value.trim() || "A work-in-progress definition.";
+    
+    if (userIdea && userIdea !== "A work-in-progress definition.") {
+      // Get current date and time
+      const now = new Date();
+      const timestamp = now.toLocaleString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hour12: true
+      });
+      
+      // Add to responses
+      responses.push({
+        text: userIdea,
+        timestamp: timestamp
+      });
+      
+      // Save to localStorage
+      localStorage.setItem("atlasResponses", JSON.stringify(responses));
+      
+      // Display updated responses
+      displayResponses();
+    }
+    
+    document.getElementById("user-idea").textContent = userIdea;
+    setScreen("global");
+  });
+
+  document.getElementById("to-intro").addEventListener("click", () => {
+    setScreen("intro");
+  });
+
+  // --- Timeline interaction ---
+  const slider = document.getElementById("year-slider");
+  const yearLabel = document.getElementById("timeline-year");
+  const yearChip = document.getElementById("year-chip");
+  const globalDesc = document.getElementById("global-description");
+
+  function updateGlobalFromYear(year) {
+    const y = parseInt(year, 10);
+    yearLabel.textContent = y;
+    yearChip.textContent = "Year: " + y;
+
+    // Snap to our descriptive key years
+    let keyYear = 1950;
+    if (y >= 1975 && y < 2000) keyYear = 1975;
+    else if (y >= 2000 && y < 2025) keyYear = 2000;
+    else if (y >= 2025) keyYear = 2025;
+
+    globalDesc.textContent = globalDescriptions[keyYear];
+  }
+
+  slider.addEventListener("input", (e) => {
+    updateGlobalFromYear(e.target.value);
+  });
+
+  // --- Map region clicks ---
+  const regions = document.querySelectorAll(".wire-region");
+
+  regions.forEach((region) => {
+    region.addEventListener("click", () => {
+      const key = region.dataset.country;
+      if (!key || !countryData[key]) return;
+
+      regions.forEach((r) => r.classList.remove("active"));
+      region.classList.add("active");
+      openCountryView(key);
+    });
+  });
+
+  function openCountryView(key) {
+    currentCountry = key;
+    const data = countryData[key];
+
+    document.getElementById("country-name").textContent = data.name;
+    document.getElementById("country-meta").textContent = data.meta;
+    document.getElementById("country-history").textContent = data.history;
+    document.getElementById("country-score").textContent = data.score;
+    document.getElementById("country-idea").textContent =
+      userIdea || "Will inherit the phrase from Screen 01.";
+
+    // Load webmap or placeholder for each region
+    const webmapIframe = document.getElementById("webmap-iframe");
+    const placeholderContainer = document.getElementById("placeholder-map-container");
+    const mapContainer = document.getElementById("country-map-container");
+    
+    // Hide all map types initially
+    webmapIframe.style.display = "none";
+    placeholderContainer.style.display = "none";
+    mapContainer.style.opacity = "1";
+    mapContainer.style.pointerEvents = "auto";
+    
+    if (key === "africa-congo") {
+      // Show iframe with webmap for Congo
+      webmapIframe.style.display = "block";
+      webmapIframe.classList.add("webmap-embedded");
+      webmapIframe.src = "DRC_Refugee_Migration_Network_Interactive.html";
+      mapContainer.style.opacity = "0";
+      mapContainer.style.pointerEvents = "none";
+      
+      // Initialize story overlay for active button
+      setTimeout(() => {
+        const activeButton = document.querySelector('.story-btn.active-story');
+        if (activeButton) {
+          switchStoryLayer(activeButton.dataset.story);
+        }
+      }, 100);
+    } else if (key === "south-asia" || key === "central-europe" || key === "custom-new") {
+      // Show placeholder for other regions
+      placeholderContainer.style.display = "block";
+      mapContainer.style.opacity = "0";
+      mapContainer.style.pointerEvents = "none";
+      
+      // Clean up any story overlays when leaving Congo
+      cleanupStoryLayers();
+    }
+
+    setScreen("country");
+  }
+
+  document
+    .getElementById("back-to-global")
+    .addEventListener("click", () => setScreen("global"));
+
+  // Initialize description and display responses on load
+  updateGlobalFromYear(slider.value);
+  displayResponses();
+
+  // --- Story switching functionality with variants ---
+  // Nested data structure for story variants
+  const storyVariants = {
+    1: {
+      A: "Story 1A: Colonial Grids and Resource Borders. King Leopold II's Congo Free State (1880s-1908) imposed arbitrary boundaries across the territory, drawn in European capitals without African consultation. This map reveals how colonial administrators overlaid a rigid administrative grid onto the landscape, dividing it into districts organized around extraction zones—rubber forests, ivory routes, mining concessions. The colonial boundary system ignored the sophisticated pre-existing kingdoms and ethnic territories, replacing fluid, adaptive governance with fixed, mapped control. Provincial boundaries shown here reflect colonial resource extraction priorities rather than African political or cultural realities. Significant places marked on this map indicate colonial trading posts, administrative centers, and resource extraction sites—the infrastructure of domination.",
+      B: "Story 1B: The Berlin Conference (1884-1885) formalized European claims over Central Africa, with Congo's borders drawn on maps in European capitals without African input.",
+      C: "Story 1C: Colonial administrative districts were organized around resource extraction zones - rubber forests, ivory routes, and later mining concessions - rather than African political structures.",
+      D: "Story 1D: Force Publique military posts established a grid of control points across the territory, enforcing colonial boundaries through violence and taxation systems.",
+      E: "Story 1E: Transportation infrastructure (rivers, roads, railways) was designed to extract resources to European ports, creating colonial economic boundaries that persist today."
+    },
+    2: {
+      A: "Story 2A: Independence (1960) brought the challenge of transforming colonial administrative boundaries into a legitimate nation-state representing diverse Congolese peoples.",
+      B: "Story 2B: Territorial Mapping as Domination. The Luba-Lunda states represent the emergence of centralized territorial control. The transition from fluid ethnic networks to mapped state territories marked the beginning of spatial domination and administrative ordering—the foundational logic that would define colonization. Pre-colonial kingdoms like Lunda and Luba established sophisticated systems of territorial organization, but their boundaries remained fluid and adaptive. Colonial powers would crystallize these territories into rigid, mapped borders, transforming the very concept of space from a lived geography into a tool of control.",
+      C: "Story 2C: The Congo Crisis and Secessionist Movements (1960-1965). Following independence, competing visions of national unity fractured the Congo. Katanga's attempted secession under Moise Tshombe represented resource-rich regions claiming autonomy from central authority. The crisis revealed how colonial boundaries had created a state without internal cohesion—multiple ethnic groups, regional strongmen, and foreign corporate interests vying for control. UN intervention, Cold War proxy conflicts, and the assassination of Lumumba destabilized any possibility of unified governance. These fragmentation patterns reflect the fundamental problem: colonial borders imposed from outside could never achieve legitimate consent from the diverse populations they enclosed.",
+      D: "Story 2D: Mobutu's State Consolidation and the Illusion of Unity (1965-1997). General Joseph Mobutu seized power, imposing authoritarian centralization through military force and nationalist ideology. His 'Zairianization' campaign attempted cultural unity while the state apparatus remained fundamentally predatory—extracting resources for personal enrichment and elite networks. Provincial reorganizations shuffled administrative boundaries repeatedly, but never addressed underlying territorial illegitimacy. Mobutu maintained the colonial framework of mapped control while weaponizing it for dictatorship. The apparent stability of his regime masked persistent fragmentation: regional autonomy movements, ethnic tensions, and resource conflicts continued beneath the surface of enforced national boundaries.",
+      E: "Story 2E: Multiple rebellions and secession movements throughout the independence era reflected ongoing struggles to legitimize inherited colonial boundaries."
+    },
+    3: {
+      A: "Story 3A: Contemporary digital networks connect Congolese diaspora communities across continents, creating new forms of national belonging beyond territorial boundaries.",
+      B: "Story 3B: Mobile money systems and digital trade networks often operate across borders, challenging traditional notions of national economic sovereignty.",
+      C: "Story 3C: Social media platforms enable real-time political organization and cultural exchange that transcends the DRC's colonial borders and connects regional communities.",
+      D: "Story 3D: Extractive industries now operate through global supply chains and digital monitoring systems that bypass traditional state control mechanisms.",
+      E: "Story 3E: Climate change and resource conflicts are creating new migration patterns and cross-border communities that challenge fixed territorial nation-state models."
+    }
+  };
+
+  // Track current state
+  let currentStory = '1';
+  let currentVariant = 'A';
+
+  // Get buttons and main narrative paragraph
+  const storyButtons = document.querySelectorAll('.story-btn');
+  const variantButtons = document.querySelectorAll('.variant-btn');
+  const mainNarrative = document.getElementById('country-history');
+
+  // Function to update narrative text based on current story and variant
+  function updateNarrative() {
+    if (storyVariants[currentStory] && storyVariants[currentStory][currentVariant]) {
+      mainNarrative.textContent = storyVariants[currentStory][currentVariant];
+    }
+  }
+
+  // Function to update button states
+  function updateButtonStates() {
+    // Update story buttons
+    storyButtons.forEach(btn => {
+      btn.classList.toggle('active-story', btn.dataset.story === currentStory);
+    });
+
+    // Update variant buttons
+    variantButtons.forEach(btn => {
+      btn.classList.toggle('active-variant', btn.dataset.variant === currentVariant);
+    });
+  }
+
+  // Add click event listeners to story buttons (1, 2, 3)
+  storyButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      currentStory = button.dataset.story;
+      currentVariant = 'A'; // Reset to variant A when changing stories
+      
+      updateButtonStates();
+      updateNarrative();
+
+      // Switch map layer overlay
+      switchStoryLayer(currentStory);
+
+      // Switch webmap source for Congo region
+      if (currentCountry === "africa-congo") {
+        switchWebmap(currentStory);
+      }
+    });
+  });
+
+  // Add click event listeners to variant buttons (A, B, C, D, E)
+  variantButtons.forEach(button => {
+    button.addEventListener('click', () => {
+      currentVariant = button.dataset.variant;
+      
+      updateButtonStates();
+      updateNarrative();
+      
+      // Handle special case: Story 1 + Variant B should show tribal groups map
+      if (currentStory === '1' && currentVariant === 'B' && currentCountry === "africa-congo") {
+        switchToTribalGroupsMap();
+      }
+      // For other Story 1 variants, ensure historical overlay is on
+      else if (currentStory === '1' && currentVariant !== 'B' && currentCountry === "africa-congo") {
+        switchWebmap(currentStory); // This loads the historical overlay map
+      }
+      // Handle special case: Story 2 + Variant A should show natural resources map
+      else if (currentStory === '2' && currentVariant === 'A' && currentCountry === "africa-congo") {
+        switchToBlankMap();
+      }
+      // Handle special case: Story 2 + Variant B should show Luba-Lunda states map
+      else if (currentStory === '2' && currentVariant === 'B' && currentCountry === "africa-congo") {
+        switchToCleanBaseMap();
+      }
+      // Handle special case: Story 2 + Variant C should show clean base map
+      else if (currentStory === '2' && currentVariant === 'C' && currentCountry === "africa-congo") {
+        switchToBaseMapOnly();
+      }
+      // For other Story 2 variants, load the migration network map
+      else if (currentStory === '2' && currentVariant !== 'A' && currentVariant !== 'B' && currentVariant !== 'C' && currentCountry === "africa-congo") {
+        switchWebmap(currentStory); // This loads the migration network map
+      }
+    });
+  });
+
+  // Set initial state (Story 1, Variant A)
+  updateButtonStates();
+  updateNarrative();
+
+  // --- Map layer switching functionality ---
+  let currentStoryOverlay = null; // Track currently displayed story overlay
+
+  // Create simple HTML overlays for each story
+  const storyOverlays = {
+    1: `<div style="position: absolute; top: 20%; left: 15%; right: 15%; bottom: 20%; 
+           border: 3px dashed #dc2626; background: rgba(220, 38, 38, 0.1); 
+           display: flex; align-items: center; justify-content: center; 
+           font-size: 12px; color: #dc2626; font-weight: bold; text-align: center; 
+           pointer-events: none; z-index: 10;">
+           COLONIAL ADMINISTRATIVE BOUNDARIES<br>
+           <span style="font-size: 10px; opacity: 0.8;">Arbitrary colonial grid system</span>
+        </div>`,
+    
+    2: `<div style="position: absolute; inset: 0; pointer-events: none; z-index: 10;">
+           <div style="position: absolute; top: 25%; left: 20%; width: 60px; height: 60px; 
+                border-radius: 50%; border: 3px solid #2563eb; background: rgba(37, 99, 235, 0.2); 
+                display: flex; align-items: center; justify-content: center; font-size: 8px; 
+                color: #2563eb; font-weight: bold; text-align: center;">
+                KINSHASA<br>CENTER
+           </div>
+           <div style="position: absolute; top: 45%; right: 25%; width: 50px; height: 50px; 
+                border-radius: 50%; border: 3px solid #2563eb; background: rgba(37, 99, 235, 0.2); 
+                display: flex; align-items: center; justify-content: center; font-size: 8px; 
+                color: #2563eb; font-weight: bold; text-align: center;">
+                MBUJI<br>MAYI
+           </div>
+           <div style="position: absolute; bottom: 20%; right: 20%; width: 45px; height: 45px; 
+                border-radius: 50%; border: 3px solid #2563eb; background: rgba(37, 99, 235, 0.2); 
+                display: flex; align-items: center; justify-content: center; font-size: 8px; 
+                color: #2563eb; font-weight: bold; text-align: center;">
+                LUBUMBASHI
+           </div>
+        </div>`,
+    
+    3: `<div style="position: absolute; inset: 0; pointer-events: none; z-index: 10;">
+           <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;">
+             <defs>
+               <pattern id="dash" patternUnits="userSpaceOnUse" width="10" height="2">
+                 <rect width="6" height="2" fill="#16a34a"/>
+               </pattern>
+             </defs>
+             <line x1="20%" y1="25%" x2="60%" y2="45%" stroke="#16a34a" stroke-width="4" stroke-dasharray="8,4"/>
+             <line x1="60%" y1="45%" x2="80%" y2="80%" stroke="#16a34a" stroke-width="4" stroke-dasharray="8,4"/>
+             <line x1="20%" y1="25%" x2="80%" y2="80%" stroke="#16a34a" stroke-width="4" stroke-dasharray="8,4"/>
+             <line x1="20%" y1="25%" x2="30%" y2="15%" stroke="#16a34a" stroke-width="4" stroke-dasharray="8,4"/>
+           </svg>
+           <div style="position: absolute; top: 10%; left: 10%; font-size: 10px; color: #16a34a; 
+                font-weight: bold; background: rgba(255,255,255,0.9); padding: 4px 8px; border-radius: 4px;">
+                DIGITAL NETWORKS & DIASPORA CONNECTIONS
+           </div>
+        </div>`
+  };
+
+  // Function to switch story overlays
+  function switchStoryLayer(storyId) {
+    const mapContainer = document.getElementById("country-map-container");
+    
+    // Only proceed if we're in Congo view and map container exists
+    if (!mapContainer || currentCountry !== "africa-congo") return;
+
+    // Remove current overlay if it exists
+    if (currentStoryOverlay) {
+      currentStoryOverlay.remove();
+      currentStoryOverlay = null;
+    }
+
+    // Add new overlay if it exists
+    if (storyOverlays[storyId]) {
+      const overlayElement = document.createElement('div');
+      overlayElement.innerHTML = storyOverlays[storyId];
+      overlayElement.style.position = 'absolute';
+      overlayElement.style.inset = '0';
+      overlayElement.style.pointerEvents = 'none';
+      
+      mapContainer.style.position = 'relative'; // Ensure container is positioned
+      mapContainer.appendChild(overlayElement);
+      currentStoryOverlay = overlayElement;
+    }
+  }
+
+  // Function to clean up overlays when leaving Congo view
+  function cleanupStoryLayers() {
+    if (currentStoryOverlay) {
+      currentStoryOverlay.remove();
+      currentStoryOverlay = null;
+    }
+  }
+
+  // Function to switch webmap source based on story
+  function switchWebmap(storyId) {
+    const webmapIframe = document.getElementById("webmap-iframe");
+    
+    if (webmapIframe && webmapIframe.style.display === "block") {
+      let mapSource;
+      
+      switch(storyId) {
+        case '1':
+          mapSource = "DRC_with_Historical_Overlay.html";
+          break;
+        case '2':
+          mapSource = "DRC_Refugee_Migration_Network_Interactive.html"; // Default/current map
+          break;
+        case '3':
+          mapSource = "DRC_Refugee_Migration_Network_Interactive.html"; // Default/current map
+          break;
+        default:
+          mapSource = "DRC_Refugee_Migration_Network_Interactive.html";
+      }
+      
+      // Only change source if it's different to avoid unnecessary reloads
+      if (webmapIframe.src !== mapSource && !webmapIframe.src.includes(mapSource)) {
+        webmapIframe.src = mapSource;
+        
+        // Wait for iframe to load, then add language layer controls
+        webmapIframe.onload = function() {
+          setTimeout(() => {
+            injectLanguageLayerControls();
+          }, 1000);
+        };
+      } else if (webmapIframe.src.includes(mapSource)) {
+        // If already on the correct map, inject layer controls
+        setTimeout(() => {
+          injectLanguageLayerControls();
+        }, 300);
+      }
+    }
+  }
+
+  // Function to inject language layer controls into the historical map
+  function injectLanguageLayerControls() {
+    const webmapIframe = document.getElementById("webmap-iframe");
+    
+    try {
+      const iframeWindow = webmapIframe.contentWindow;
+      const iframeDoc = webmapIframe.contentDocument;
+      
+      if (iframeWindow && iframeWindow.L && iframeWindow.map) {
+        const map = iframeWindow.map;
+        const L = iframeWindow.L;
+        
+        // Check if language layer already exists
+        if (window.languageLayerControl) {
+          return; // Already added
+        }
+        
+        // Language territories GeoJSON
+        const languageData = {
+          "type": "FeatureCollection",
+          "features": [
+            {
+              "type": "Feature",
+              "properties": {"name": "Lingala", "speakers": "14,432,975"},
+              "geometry": {"type": "Polygon", "coordinates": [[[12.5, 2.0], [24.0, 2.0], [24.0, -4.0], [12.5, -4.0], [12.5, 2.0]]]}
+            },
+            {
+              "type": "Feature",
+              "properties": {"name": "Kikongo", "speakers": "457,911+"},
+              "geometry": {"type": "Polygon", "coordinates": [[[12.0, -3.0], [16.0, -3.0], [16.0, -7.5], [12.0, -7.5], [12.0, -3.0]]]}
+            },
+            {
+              "type": "Feature",
+              "properties": {"name": "Tshiluba", "speakers": "395,871+"},
+              "geometry": {"type": "Polygon", "coordinates": [[[19.0, -4.0], [26.0, -4.0], [26.0, -8.0], [19.0, -8.0], [19.0, -4.0]]]}
+            },
+            {
+              "type": "Feature",
+              "properties": {"name": "Kiluba", "speakers": "~400,000"},
+              "geometry": {"type": "Polygon", "coordinates": [[[22.0, -7.0], [30.0, -7.0], [30.0, -13.5], [22.0, -13.5], [22.0, -7.0]]]}
+            },
+            {
+              "type": "Feature",
+              "properties": {"name": "Djolu", "speakers": "366,705"},
+              "geometry": {"type": "Polygon", "coordinates": [[[24.0, 0.5], [30.0, 0.5], [30.0, 2.5], [24.0, 2.5], [24.0, 0.5]]]}
+            },
+            {
+              "type": "Feature",
+              "properties": {"name": "Libenge", "speakers": "365,190"},
+              "geometry": {"type": "Polygon", "coordinates": [[[24.0, 2.0], [27.0, 2.0], [27.0, 4.0], [24.0, 4.0], [24.0, 2.0]]]}
+            },
+            {
+              "type": "Feature",
+              "properties": {"name": "Busangu", "speakers": "457,911"},
+              "geometry": {"type": "Polygon", "coordinates": [[[20.0, 0.5], [24.0, 0.5], [24.0, 2.5], [20.0, 2.5], [20.0, 0.5]]]}
+            },
+            {
+              "type": "Feature",
+              "properties": {"name": "Kutu", "speakers": "395,871"},
+              "geometry": {"type": "Polygon", "coordinates": [[[18.0, -2.0], [24.0, -2.0], [24.0, -4.5], [18.0, -4.5], [18.0, -2.0]]]}
+            },
+            {
+              "type": "Feature",
+              "properties": {"name": "Basankusu", "speakers": "350,541"},
+              "geometry": {"type": "Polygon", "coordinates": [[[18.5, -3.0], [23.0, -3.0], [23.0, -5.5], [18.5, -5.5], [18.5, -3.0]]]}
+            },
+            {
+              "type": "Feature",
+              "properties": {"name": "Yakoma", "speakers": "344,459"},
+              "geometry": {"type": "Polygon", "coordinates": [[[17.0, 1.5], [21.0, 1.5], [21.0, 3.5], [17.0, 3.5], [17.0, 1.5]]]}
+            },
+            {
+              "type": "Feature",
+              "properties": {"name": "Basoko", "speakers": "336,979"},
+              "geometry": {"type": "Polygon", "coordinates": [[[19.0, -1.0], [25.0, -1.0], [25.0, -3.0], [19.0, -3.0], [19.0, -1.0]]]}
+            },
+            {
+              "type": "Feature",
+              "properties": {"name": "Befale", "speakers": "319,887"},
+              "geometry": {"type": "Polygon", "coordinates": [[[20.0, -2.5], [24.0, -2.5], [24.0, -5.0], [20.0, -5.0], [20.0, -2.5]]]}
+            },
+            {
+              "type": "Feature",
+              "properties": {"name": "Ikela", "speakers": "308,656"},
+              "geometry": {"type": "Polygon", "coordinates": [[[19.5, -3.5], [23.5, -3.5], [23.5, -6.0], [19.5, -6.0], [19.5, -3.5]]]}
+            },
+            {
+              "type": "Feature",
+              "properties": {"name": "Bikoro", "speakers": "302,915"},
+              "geometry": {"type": "Polygon", "coordinates": [[[16.0, -3.5], [20.0, -3.5], [20.0, -6.0], [16.0, -6.0], [16.0, -3.5]]]}
+            },
+            {
+              "type": "Feature",
+              "properties": {"name": "Buta / Opala", "speakers": "275,585 / 273,580"},
+              "geometry": {"type": "Polygon", "coordinates": [[[26.0, 0.0], [30.0, 0.0], [30.0, 2.0], [26.0, 2.0], [26.0, 0.0]]]}
+            },
+            {
+              "type": "Feature",
+              "properties": {"name": "Kasangulu", "speakers": "206,422"},
+              "geometry": {"type": "Polygon", "coordinates": [[[18.0, -10.0], [26.0, -10.0], [26.0, -13.5], [18.0, -13.5], [18.0, -10.0]]]}
+            },
+            {
+              "type": "Feature",
+              "properties": {"name": "Bomongo", "speakers": "201,134"},
+              "geometry": {"type": "Polygon", "coordinates": [[[21.0, -4.5], [25.0, -4.5], [25.0, -7.0], [21.0, -7.0], [21.0, -4.5]]]}
+            },
+            {
+              "type": "Feature",
+              "properties": {"name": "Yahuma", "speakers": "170,475"},
+              "geometry": {"type": "Polygon", "coordinates": [[[26.0, -3.0], [30.0, -3.0], [30.0, -6.0], [26.0, -6.0], [26.0, -3.0]]]}
+            },
+            {
+              "type": "Feature",
+              "properties": {"name": "Lukolela", "speakers": "168,575"},
+              "geometry": {"type": "Polygon", "coordinates": [[[17.0, -2.0], [21.0, -2.0], [21.0, -4.0], [17.0, -4.0], [17.0, -2.0]]]}
+            }
+          ]
+        };
+        
+        // Color mapping for languages
+        const languageColors = {
+          "Lingala": "#4A90E2",
+          "Kikongo": "#7ED321",
+          "Tshiluba": "#7ED321",
+          "Kiluba": "#7ED321",
+          "Djolu": "#F5A623",
+          "Libenge": "#BD10E0",
+          "Busangu": "#7ED321",
+          "Kutu": "#7ED321",
+          "Basankusu": "#7ED321",
+          "Yakoma": "#BD10E0",
+          "Basoko": "#50E3C2",
+          "Befale": "#7ED321",
+          "Ikela": "#7ED321",
+          "Bikoro": "#7ED321",
+          "Buta / Opala": "#F5A623",
+          "Kasangulu": "#7ED321",
+          "Bomongo": "#7ED321",
+          "Yahuma": "#7ED321",
+          "Lukolela": "#50E3C2"
+        };
+        
+        // Create language layer
+        const languageLayer = L.geoJSON(languageData, {
+          style: function(feature) {
+            return {
+              fillColor: languageColors[feature.properties.name] || '#7ED321',
+              weight: 1,
+              opacity: 0.6,
+              color: '#333',
+              fillOpacity: 0.35
+            };
+          },
+          onEachFeature: function(feature, layer) {
+            const popup = `<div style="font-family:Georgia,serif;"><strong>${feature.properties.name}</strong><br/><span style="font-size:11px;">${feature.properties.speakers} speakers</span></div>`;
+            layer.bindPopup(popup);
+            layer.bindTooltip(feature.properties.name, {sticky: false});
+          }
+        });
+        
+        // Add overlay to layer control
+        if (window.layerControl) {
+          window.layerControl.addOverlay(languageLayer, '<span style="color:#2c5530; font-weight:bold;">1-B: Languages Spoken</span>');
+        }
+        
+        window.languageLayerControl = languageLayer;
+        console.log('Language layer controls injected');
+        
+      }
+    } catch (error) {
+      console.log('Could not inject language layer:', error);
+    }
+  }
+
+  // Function to switch to language territories map (for Story 1 - Variant B)
+  function switchToTribalGroupsMap() {
+    const webmapIframe = document.getElementById("webmap-iframe");
+    
+    if (webmapIframe && webmapIframe.style.display === "block") {
+      // Switch to the minimal language territories map for 1-B
+      const languageMapSource = "DRC_Languages_1B.html";
+      
+      // Only change source if it's different to avoid unnecessary reloads
+      if (!webmapIframe.src.includes(languageMapSource)) {
+        webmapIframe.src = languageMapSource;
+        console.log('Switched to language territories map for Story 1-B');
+      }
+    }
+  }
+
+  function switchToBlankMap() {
+    const webmapIframe = document.getElementById("webmap-iframe");
+    
+    if (webmapIframe && webmapIframe.style.display === "block") {
+      // Switch to the natural resources map for 2-A
+      const resourcesMapSource = "DRC_Natural_Resources_2A.html";
+      
+      // Only change source if it's different to avoid unnecessary reloads
+      if (!webmapIframe.src.includes(resourcesMapSource)) {
+        webmapIframe.src = resourcesMapSource;
+        console.log('Switched to natural resources map for Story 2-A');
+      }
+    }
+  }
+
+  function switchToCleanBaseMap() {
+    const webmapIframe = document.getElementById("webmap-iframe");
+    
+    if (webmapIframe && webmapIframe.style.display === "block") {
+      // Switch to the Luba-Lunda states map for 2-B
+      const lubaLundaMapSource = "DRC_Luba_Lunda_2B.html";
+      
+      // Only change source if it's different to avoid unnecessary reloads
+      if (!webmapIframe.src.includes(lubaLundaMapSource)) {
+        webmapIframe.src = lubaLundaMapSource;
+        console.log('Switched to Luba-Lunda states map for Story 2-B');
+      }
+    }
+  }
+
+  function switchToBaseMapOnly() {
+    const webmapIframe = document.getElementById("webmap-iframe");
+    
+    if (webmapIframe && webmapIframe.style.display === "block") {
+      // Switch to Berlin Conference map for 2-C
+      const berlinMapSource = "DRC_Berlin_Conference_2C.html";
+      
+      // Only change source if it's different to avoid unnecessary reloads
+      if (!webmapIframe.src.includes(berlinMapSource)) {
+        webmapIframe.src = berlinMapSource;
+        console.log('Switched to Berlin Conference map for Story 2-C');
+      }
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    
+    <title>DRC - Administrative Provinces & Ethnic Groups</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    
+    <style>
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            font-family: 'Georgia', 'Times New Roman', serif;
+        }
+        
+        #map {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            left: 0;
+        }
+
+        /* Legend styling */
+        .legend {
+            position: fixed; 
+            bottom: 20px; 
+            right: 20px; 
+            width: 280px; 
+            background-color: rgba(255, 255, 255, 0.95); 
+            border: none; 
+            border-left: 3px solid #333333;
+            z-index: 9999; 
+            padding: 14px 16px; 
+            border-radius: 0;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.15);
+        }
+        
+        .legend h3 {
+            margin: 0 0 8px 0; 
+            font-size: 14px; 
+            font-weight: bold; 
+            color: #1a1a1a; 
+            letter-spacing: 0.3px;
+        }
+        
+        .legend-section {
+            border-top: 1px solid #e0e0e0; 
+            padding-top: 8px;
+            margin-top: 8px;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin: 4px 0;
+            font-size: 11px;
+            color: #666;
+        }
+        
+        .legend-color {
+            width: 16px;
+            height: 12px;
+            margin-right: 8px;
+            border: 1px solid #333;
+        }
+        
+        .legend-line {
+            width: 20px;
+            height: 2px;
+            margin-right: 8px;
+            background: #999;
+        }
+
+        /* Popup styling */
+        .leaflet-popup-content-wrapper {
+            font-family: Georgia, serif;
+        }
+        
+        .group-popup {
+            max-width: 250px;
+        }
+        
+        .group-popup h4 {
+            margin: 0 0 6px 0;
+            color: #333;
+            font-size: 14px;
+        }
+        
+        .group-popup .period {
+            font-size: 11px;
+            color: #666;
+            font-style: italic;
+            margin-bottom: 6px;
+        }
+        
+        .group-popup .description {
+            font-size: 12px;
+            line-height: 1.3;
+            color: #444;
+        }
+        
+        /* Province popup styling */
+        .leaflet-popup-content {
+            margin: 8px 12px;
+        }
+        
+        .leaflet-popup-content-wrapper {
+            border-radius: 8px;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    
+    <!-- Legend -->
+    <div class="legend">
+        <h3>DRC - Provinces & Ethnic Groups</h3>
+        
+        <div class="legend-section">
+            <div class="legend-item">
+                <div class="legend-line" style="border: 1px solid #999; background: transparent; height: 1px;"></div>
+                <span>Provincial boundaries</span>
+            </div>
+        </div>
+        
+        <div class="legend-section">
+            <div style="font-size: 11px; font-weight: bold; color: #333; margin-bottom: 4px;">Ethnic/Linguistic Groups:</div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: rgba(220, 38, 38, 0.3); border-color: #dc2626;"></div>
+                <span>Historic groups (pre-colonial)</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: rgba(37, 99, 235, 0.3); border-color: #2563eb;"></div>
+                <span>Colonial period groups</span>
+            </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: rgba(22, 163, 74, 0.3); border-color: #16a34a;"></div>
+                <span>Contemporary communities</span>
+            </div>
+        </div>
+        
+        <div style="margin-top: 10px; font-size: 10px; color: #999;">
+            Click on ethnic territories for details
+        </div>
+    </div>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    
+    <script>
+        // Initialize map centered on DRC
+        var map = L.map('map').setView([-4.0, 21.5], 6);
+        
+        // Add basemap (same style as previous maps)
+        var baseLayer = L.tileLayer('https://cartodb-basemaps-{s}.global.ssl.fastly.net/light_all/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="http://cartodb.com/attributions">CartoDB</a>',
+            subdomains: 'abcd',
+            maxZoom: 18
+        }).addTo(map);
+
+        // Provincial boundaries styling (neutral reference layer)
+        function provincialStyle(feature) {
+            return {
+                fillColor: '#f8f8f8',
+                weight: 1,
+                opacity: 0.8,
+                color: '#999999',
+                fillOpacity: 0.1
+            };
+        }
+
+        // Ethnic groups styling based on period
+        function ethnicGroupStyle(feature) {
+            var period = feature.properties.period || 'contemporary';
+            var colors = {
+                'historic': {color: '#dc2626', fillColor: '#dc2626'},
+                'pre-colonial': {color: '#dc2626', fillColor: '#dc2626'},
+                'colonial': {color: '#2563eb', fillColor: '#2563eb'},
+                'contemporary': {color: '#16a34a', fillColor: '#16a34a'},
+                'modern': {color: '#16a34a', fillColor: '#16a34a'}
+            };
+            
+            var styleColors = colors[period.toLowerCase()] || colors['contemporary'];
+            
+            return {
+                fillColor: styleColors.fillColor,
+                weight: 2,
+                opacity: 0.8,
+                color: styleColors.color,
+                fillOpacity: 0.3
+            };
+        }
+
+        // Ethnic groups hover styling
+        function ethnicGroupHighlight(feature) {
+            var baseStyle = ethnicGroupStyle(feature);
+            return {
+                fillColor: baseStyle.fillColor,
+                weight: 3,
+                opacity: 1.0,
+                color: baseStyle.color,
+                fillOpacity: 0.5
+            };
+        }
+
+        // Provincial boundaries data (comprehensive DRC provinces)
+        var provincialData = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Kinshasa"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[15.150677777000112, -4.425150932999969], [15.188044068000067, -4.37218678799988], [15.193418416000014, -4.358750914999916], [15.203960409000075, -4.339010518999956], [15.228351684000103, -4.32485117599991], [15.255740194000055, -4.313068948999913], [15.275273885000047, -4.30035654699995], [15.386584920000104, -4.2443392939999285], [15.42544559700005, -4.230179951999986], [15.450250285000095, -4.217260843999966], [15.458931925000059, -4.21385019899995], [15.462859334000115, -4.20713226299992], [15.484976847000041, -4.1838778689999145], [15.490351196000091, -4.1751962279999475], [15.521150350000056, -4.07680430099991], [15.533759399000076, -4.057994079999901], [15.549055623000129, -4.046211852999903], [15.566832316000074, -4.038046976999894], [15.711216267000111, -3.9921583049999185], [15.755141235000053, -3.985647074999946], [15.799996378000117, -3.9788257849998985], [15.84423140500013, -3.9655966189998964], [15.88298872900009, -3.9453394569999034], [15.888019272871134, -3.9405229785526217], [16.183981404000065, -2.9404492519999508], [15.150677777000112, -4.425150932999969]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Kongo Central"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[12.0, -5.0], [15.150677777000112, -4.425150932999969], [15.0, -6.5], [12.0, -6.5], [12.0, -5.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Bandundu"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[16.183981404000065, -2.9404492519999508], [19.0, -2.5], [19.0, -5.5], [15.888019272871134, -3.9405229785526217], [15.88298872900009, -3.9453394569999034], [15.84423140500013, -3.9655966189998964], [15.799996378000117, -3.9788257849998985], [16.183981404000065, -2.9404492519999508]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Équateur"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[17.0, 2.0], [22.0, 2.0], [22.0, -2.5], [16.183981404000065, -2.9404492519999508], [17.0, 1.0], [17.0, 2.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Orientale"},
+                    "geometry": {
+                        "type": "Polygon", 
+                        "coordinates": [[[22.0, 4.0], [31.0, 4.0], [31.0, -2.0], [22.0, -2.0], [22.0, 4.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Kasaï Occidental"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[19.0, -4.0], [23.0, -4.0], [23.0, -7.5], [19.0, -7.5], [19.0, -4.0]]]
+                    }
+                },
+                {
+                    "type": "Feature", 
+                    "properties": {"iso_a2": "CD", "name": "Kasaï Oriental"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[23.0, -4.0], [26.0, -4.0], [26.0, -8.0], [23.0, -8.0], [23.0, -4.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Katanga"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[23.0, -7.5], [30.0, -7.5], [30.0, -13.5], [22.0, -13.5], [22.0, -8.0], [23.0, -7.5]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Nord-Kivu"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[28.0, -0.5], [30.5, -0.5], [30.5, -3.0], [28.0, -3.0], [28.0, -0.5]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Sud-Kivu"},
+                    "geometry": {
+                        "type": "Polygon", 
+                        "coordinates": [[[27.5, -3.0], [30.5, -3.0], [30.5, -5.5], [27.5, -5.5], [27.5, -3.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Maniema"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[25.0, -2.0], [28.0, -2.0], [28.0, -7.0], [25.0, -7.0], [25.0, -2.0]]]
+                    }
+                }
+            ]
+        };
+
+        // Ethnic/linguistic groups data (sample data - replace with actual research)
+        var ethnicGroupsData = {
+            "type": "FeatureCollection", 
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Kongo Kingdom Territory",
+                        "period": "Historic",
+                        "description": "Historic Kongo Kingdom territory spanning western DRC, extending into Angola and Brazzaville. Major political entity from 14th-19th centuries."
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[
+                            [12.0, -4.5], [16.5, -4.5], [16.5, -7.5], [12.0, -7.5], [12.0, -4.5]
+                        ]]
+                    }
+                },
+                {
+                    "type": "Feature", 
+                    "properties": {
+                        "name": "Luba Empire",
+                        "period": "Historic", 
+                        "description": "Historic Luba Empire in central DRC, known for sophisticated political organization and trade networks from 15th-19th centuries."
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[
+                            [21.0, -6.0], [26.0, -6.0], [26.0, -10.0], [21.0, -10.0], [21.0, -6.0]
+                        ]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Lunda Territory",
+                        "period": "Historic",
+                        "description": "Historic Lunda kingdom territory, influential trading empire spanning southern DRC and northern Angola from 16th-19th centuries."
+                    },
+                    "geometry": {
+                        "type": "Polygon", 
+                        "coordinates": [[
+                            [19.0, -8.0], [25.0, -8.0], [25.0, -12.0], [19.0, -12.0], [19.0, -8.0]
+                        ]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Mongo Cultural Area", 
+                        "period": "Contemporary",
+                        "description": "Contemporary Mongo-speaking communities in central DRC, comprising multiple sub-groups with shared linguistic and cultural traditions."
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[
+                            [17.5, -1.0], [22.5, -1.0], [22.5, -4.5], [17.5, -4.5], [17.5, -1.0]
+                        ]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Azande Territory",
+                        "period": "Colonial",
+                        "description": "Azande communities spanning northeastern DRC, established through migrations and conquests during colonial period, known for distinctive political organization."
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[
+                            [25.0, 2.0], [29.0, 2.0], [29.0, 0.0], [25.0, 0.0], [25.0, 2.0]
+                        ]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Tutsi-Hutu Communities",
+                        "period": "Contemporary", 
+                        "description": "Contemporary Tutsi and Hutu communities in eastern DRC, including historical residents and populations displaced by regional conflicts."
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[
+                            [28.5, -1.5], [30.0, -1.5], [30.0, -4.0], [28.5, -4.0], [28.5, -1.5]
+                        ]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Bemba Trading Networks", 
+                        "period": "Colonial",
+                        "description": "Bemba communities and trading networks in southeastern DRC during colonial period, connected to Copperbelt mining economy."
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[
+                            [26.0, -9.0], [29.0, -9.0], [29.0, -12.0], [26.0, -12.0], [26.0, -9.0]
+                        ]]
+                    }
+                }
+            ]
+        };
+
+        // Add provincial boundaries as reference layer with subtle styling
+        var provincialLayer = L.geoJSON(provincialData, {
+            style: {
+                color: '#8B4513',           // Brown outline
+                weight: 1.5,
+                fillColor: '#D2B48C',       // Light brown fill
+                fillOpacity: 0.1,           // Very subtle 10% fill as requested
+                opacity: 0.7,               // More visible borders for reference
+                dashArray: '5, 5'           // Dashed lines to distinguish from ethnic boundaries
+            },
+            onEachFeature: function(feature, layer) {
+                if (feature.properties.name) {
+                    layer.bindPopup(`
+                        <div style='font-family: Georgia, serif; width: 200px;'>
+                            <b style='font-size: 14px;'>${feature.properties.name}</b><br>
+                            <span style='font-size: 12px; color: #666;'>Administrative Province</span><br>
+                            <span style='font-size: 11px; color: #999;'>Reference layer</span>
+                        </div>
+                    `);
+                    
+                    // Add hover effects for better interaction
+                    layer.on({
+                        mouseover: function(e) {
+                            var layer = e.target;
+                            layer.setStyle({
+                                weight: 2,
+                                fillOpacity: 0.2
+                            });
+                        },
+                        mouseout: function(e) {
+                            var layer = e.target;
+                            layer.setStyle({
+                                weight: 1.5,
+                                fillOpacity: 0.1
+                            });
+                        }
+                    });
+                }
+            }
+        }).addTo(map);
+
+        // Add ethnic groups layer with interactions
+        var ethnicGroupsLayer = L.geoJSON(ethnicGroupsData, {
+            style: ethnicGroupStyle,
+            onEachFeature: function(feature, layer) {
+                var props = feature.properties;
+                
+                // Create popup content
+                var popupContent = `
+                    <div class="group-popup">
+                        <h4>${props.name}</h4>
+                        <div class="period">${props.period} Period</div>
+                        <div class="description">${props.description}</div>
+                    </div>
+                `;
+                
+                layer.bindPopup(popupContent, {maxWidth: 300});
+                
+                // Hover effects
+                layer.on({
+                    mouseover: function(e) {
+                        var layer = e.target;
+                        layer.setStyle(ethnicGroupHighlight(layer.feature));
+                        layer.bringToFront();
+                    },
+                    mouseout: function(e) {
+                        ethnicGroupsLayer.resetStyle(e.target);
+                    }
+                });
+            }
+        }).addTo(map);
+
+        // Ensure ethnic groups appear above provinces
+        ethnicGroupsLayer.bringToFront();
+    </script>
+</body>
+</html>

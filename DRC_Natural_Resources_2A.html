@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DRC - Natural Resources 2A</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: Georgia, serif;
+            background: #fafafa;
+            color: #111;
+        }
+        
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+
+        /* Minimal NY Times style popup */
+        .leaflet-popup-content-wrapper {
+            font-family: Georgia, serif;
+            border-radius: 0;
+            box-shadow: none;
+            border: 1px solid #ccc;
+            background: #fafafa;
+        }
+        
+        .leaflet-popup-tip {
+            background: #fafafa;
+            border: 1px solid #ccc;
+        }
+        
+        .resource-popup {
+            max-width: 240px;
+            padding: 0;
+        }
+        
+        .resource-popup h4 {
+            margin: 0;
+            padding: 10px 12px;
+            color: #111;
+            background: transparent;
+            font-size: 13px;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        
+        .resource-popup .info {
+            padding: 10px 12px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .resource-popup .production {
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #111;
+        }
+        
+        .resource-popup .value {
+            font-size: 11px;
+            color: #666;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+
+        /* Minimal NY Times tooltip */
+        .leaflet-tooltip {
+            background: rgba(17, 17, 17, 0.85);
+            border: none;
+            border-radius: 0;
+            color: #fafafa;
+            font-family: Georgia, serif;
+            font-size: 11px;
+            padding: 5px 8px;
+            box-shadow: none;
+        }
+
+        /* Minimal legend */
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: #fafafa;
+            padding: 16px;
+            border-radius: 0;
+            box-shadow: none;
+            border: 1px solid #e0e0e0;
+            z-index: 1000;
+            max-width: 260px;
+        }
+        
+        .legend h4 {
+            margin: 0 0 12px 0;
+            font-size: 11px;
+            color: #111;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+
+        .legend-section {
+            margin-bottom: 14px;
+        }
+        
+        .legend-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .layer-toggle {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 11px;
+        }
+        
+        .layer-toggle input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+            width: 14px;
+            height: 14px;
+            accent-color: #111;
+        }
+        
+        .layer-toggle label {
+            cursor: pointer;
+            flex: 1;
+            font-size: 12px;
+            color: #333;
+            line-height: 1.5;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 9px;
+            font-size: 12px;
+            margin-left: 22px;
+        }
+        
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            margin-right: 8px;
+            border: none;
+            flex-shrink: 0;
+        }
+
+        .legend-item span {
+            color: #333;
+            font-family: Georgia, serif;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    
+    <!-- Legend -->
+    <div class="legend">
+        <h4>Natural Resources</h4>
+        
+        <div class="legend-section">
+            <div class="layer-toggle">
+                <input type="checkbox" id="minersToggle" checked>
+                <label for="minersToggle">Mineral Deposits</label>
+            </div>
+            <div class="layer-toggle">
+                <input type="checkbox" id="forestToggle" checked>
+                <label for="forestToggle">Forest Coverage</label>
+            </div>
+            <div class="layer-toggle">
+                <input type="checkbox" id="waterToggle" checked>
+                <label for="waterToggle">Water Resources</label>
+            </div>
+            <div class="layer-toggle">
+                <input type="checkbox" id="oilToggle" checked>
+                <label for="oilToggle">Oil & Gas Fields</label>
+            </div>
+        </div>
+
+        <h4 style="margin-top: 12px;">Minerals</h4>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #d4a574;"></div>
+            <span>Cobalt</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #8b7355;"></div>
+            <span>Copper</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #b8860b;"></div>
+            <span>Gold</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #696969;"></div>
+            <span>Diamonds</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #a0826d;"></div>
+            <span>Tin/Coltan</span>
+        </div>
+    </div>
+    
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script>
+        // Initialize map centered on DRC
+        var map = L.map('map').setView([-3.5, 21.75], 5);
+        
+        // Add CartoDB Light basemap
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '© CartoDB contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Forest coverage GeoJSON (simplified)
+        var forestCoverageData = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Congo Basin Forest", "coverage": "Dense Tropical Forest" },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[12.0, 3.0], [25.0, 3.0], [25.0, -5.0], [12.0, -5.0], [12.0, 3.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Eastern Forest Corridor", "coverage": "Montane & Dense Forest" },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[25.0, 0.0], [31.0, 0.0], [31.0, -5.0], [25.0, -5.0], [25.0, 0.0]]]
+                    }
+                }
+            ]
+        };
+
+        var forestLayer = L.geoJSON(forestCoverageData, {
+            style: {
+                color: '#a4ac86',
+                weight: 1,
+                opacity: 0.3,
+                fillOpacity: 0.15,
+                fillColor: '#a4ac86'
+            },
+            onEachFeature: function(feature, layer) {
+                var tooltip = `<strong>${feature.properties.name}</strong><br>${feature.properties.coverage}`;
+                layer.bindTooltip(tooltip);
+                
+                var popup = `<div class="resource-popup">
+                    <h4>${feature.properties.name}</h4>
+                    <div class="info">
+                        <div class="production">${feature.properties.coverage}</div>
+                        <div class="value">The Congo Basin contains approximately 10% of the world's remaining tropical forest, crucial for global climate regulation and biodiversity.</div>
+                    </div>
+                </div>`;
+                layer.bindPopup(popup);
+            }
+        }).addTo(map);
+
+        // Water resources (major rivers and lakes)
+        var waterResourcesData = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Congo River", "type": "Major River", "capacity": "World's second-largest by discharge" },
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [[15.5, 2.0], [14.0, 0.5], [13.0, -1.0], [12.5, -3.0], [12.0, -4.5]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Lake Tanganyika", "type": "Great Lake", "capacity": "2nd deepest freshwater lake globally" },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [29.0, -7.0]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Lake Kivu", "type": "Crater Lake", "capacity": "Hydroelectric & freshwater resource" },
+                    "geometry": {
+                        "type": "Point",
+                        "coordinates": [28.85, -1.95]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Kasai River", "type": "Major Tributary", "capacity": "Navigable waterway system" },
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [[20.0, -2.0], [18.0, -4.0], [16.0, -5.5], [14.0, -6.0]]
+                    }
+                }
+            ]
+        };
+
+        var waterLayer = L.geoJSON(waterResourcesData, {
+            pointToLayer: function(feature, latlng) {
+                return L.circleMarker(latlng, {
+                    radius: 6,
+                    fillColor: '#4a90e2',
+                    color: '#2c5aa0',
+                    weight: 1.5,
+                    opacity: 0.8,
+                    fillOpacity: 0.6
+                });
+            },
+            style: function(feature) {
+                if (feature.geometry.type === 'LineString') {
+                    return {
+                        color: '#4a90e2',
+                        weight: 2.5,
+                        opacity: 0.6
+                    };
+                }
+            },
+            onEachFeature: function(feature, layer) {
+                var tooltip = `<strong>${feature.properties.name}</strong>`;
+                layer.bindTooltip(tooltip);
+                
+                var popup = `<div class="resource-popup">
+                    <h4>${feature.properties.name}</h4>
+                    <div class="info">
+                        <div class="production">${feature.properties.type}</div>
+                        <div class="value">${feature.properties.capacity}</div>
+                    </div>
+                </div>`;
+                layer.bindPopup(popup);
+            }
+        }).addTo(map);
+
+        // Mineral deposits
+        var mineralData = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Katanga Cobalt Belt", "mineral": "Cobalt", "production": "70% of world's cobalt", "value": "$25+ billion annually" },
+                    "geometry": { "type": "Point", "coordinates": [26.5, -11.5] }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Kasai Diamond Fields", "mineral": "Diamonds", "production": "15% of world's diamonds", "value": "$7+ billion annually" },
+                    "geometry": { "type": "Point", "coordinates": [21.0, -6.0] }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Copper Belt", "mineral": "Copper", "production": "5% of world's copper", "value": "$4+ billion annually" },
+                    "geometry": { "type": "Point", "coordinates": [25.0, -11.0] }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Kivu Gold Fields", "mineral": "Gold", "production": "Artisanal & industrial", "value": "$2+ billion annually" },
+                    "geometry": { "type": "Point", "coordinates": [29.0, -2.0] }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Manono-Kitotolo", "mineral": "Tin & Coltan", "production": "Strategic minerals", "value": "$1.5+ billion annually" },
+                    "geometry": { "type": "Point", "coordinates": [23.5, -8.5] }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Mbuji-Mayi", "mineral": "Diamonds", "production": "Major alluvial deposits", "value": "$2+ billion annually" },
+                    "geometry": { "type": "Point", "coordinates": [23.6, -6.1] }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Bukavu Gold Region", "mineral": "Gold", "production": "Regional production hub", "value": "$800 million+ annually" },
+                    "geometry": { "type": "Point", "coordinates": [28.8, -2.5] }
+                }
+            ]
+        };
+
+        var mineralColors = {
+            "Cobalt": "#d4a574",
+            "Copper": "#8b7355",
+            "Gold": "#b8860b",
+            "Diamonds": "#696969",
+            "Tin & Coltan": "#a0826d"
+        };
+
+        var mineralLayer = L.geoJSON(mineralData, {
+            pointToLayer: function(feature, latlng) {
+                var color = mineralColors[feature.properties.mineral] || "#999";
+                return L.circleMarker(latlng, {
+                    radius: 8,
+                    fillColor: color,
+                    color: '#111',
+                    weight: 1,
+                    opacity: 0.8,
+                    fillOpacity: 0.7
+                });
+            },
+            onEachFeature: function(feature, layer) {
+                var tooltip = `<strong>${feature.properties.name}</strong><br>${feature.properties.mineral}`;
+                layer.bindTooltip(tooltip);
+                
+                var popup = `<div class="resource-popup">
+                    <h4>${feature.properties.name}</h4>
+                    <div class="info">
+                        <div class="production">${feature.properties.mineral}</div>
+                        <div class="value"><strong>Production:</strong> ${feature.properties.production}<br><strong>Annual Value:</strong> ${feature.properties.value}</div>
+                    </div>
+                </div>`;
+                layer.bindPopup(popup);
+            }
+        }).addTo(map);
+
+        // Oil and gas fields
+        var oilGasData = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Lower Congo Oil", "type": "Offshore/Coastal", "production": "~80,000 barrels/day" },
+                    "geometry": { "type": "Point", "coordinates": [13.5, -6.0] }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Lake Albert Oil Fields", "type": "Rift Valley", "production": "~100,000 barrels/day" },
+                    "geometry": { "type": "Point", "coordinates": [30.5, 0.5] }
+                },
+                {
+                    "type": "Feature",
+                    "properties": { "name": "Central Basin Gas", "type": "Onshore", "production": "Natural gas reserves" },
+                    "geometry": { "type": "Point", "coordinates": [18.0, 0.0] }
+                }
+            ]
+        };
+
+        var oilLayer = L.geoJSON(oilGasData, {
+            pointToLayer: function(feature, latlng) {
+                return L.circleMarker(latlng, {
+                    radius: 7,
+                    fillColor: '#2d2d2d',
+                    color: '#111',
+                    weight: 1.5,
+                    opacity: 0.9,
+                    fillOpacity: 0.5
+                });
+            },
+            onEachFeature: function(feature, layer) {
+                var tooltip = `<strong>${feature.properties.name}</strong><br>Oil/Gas`;
+                layer.bindTooltip(tooltip);
+                
+                var popup = `<div class="resource-popup">
+                    <h4>${feature.properties.name}</h4>
+                    <div class="info">
+                        <div class="production">${feature.properties.type}</div>
+                        <div class="value"><strong>Production:</strong> ${feature.properties.production}</div>
+                    </div>
+                </div>`;
+                layer.bindPopup(popup);
+            }
+        }).addTo(map);
+
+        // Layer toggle functionality
+        document.getElementById('minersToggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                if (!map.hasLayer(mineralLayer)) {
+                    mineralLayer.addTo(map);
+                }
+            } else {
+                if (map.hasLayer(mineralLayer)) {
+                    map.removeLayer(mineralLayer);
+                }
+            }
+        });
+
+        document.getElementById('forestToggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                if (!map.hasLayer(forestLayer)) {
+                    forestLayer.addTo(map);
+                }
+            } else {
+                if (map.hasLayer(forestLayer)) {
+                    map.removeLayer(forestLayer);
+                }
+            }
+        });
+
+        document.getElementById('waterToggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                if (!map.hasLayer(waterLayer)) {
+                    waterLayer.addTo(map);
+                }
+            } else {
+                if (map.hasLayer(waterLayer)) {
+                    map.removeLayer(waterLayer);
+                }
+            }
+        });
+
+        document.getElementById('oilToggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                if (!map.hasLayer(oilLayer)) {
+                    oilLayer.addTo(map);
+                }
+            } else {
+                if (map.hasLayer(oilLayer)) {
+                    map.removeLayer(oilLayer);
+                }
+            }
+        });
+
+        // Expose for external access
+        window.map = map;
+    </script>
+</body>
+</html>

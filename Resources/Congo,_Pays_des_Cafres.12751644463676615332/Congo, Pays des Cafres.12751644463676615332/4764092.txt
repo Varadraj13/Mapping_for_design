@@ -1,0 +1,37 @@
+Author	L'Isle, Guillaume de, 1675-1726
+Date	1708
+Short Title	Congo, Pays des Cafres.
+Publisher	Guillaume De L'Isle, Quai de l'Horloge
+Publisher Location	Paris
+Type	Atlas Map
+Obj Height cm	49
+Obj Width cm	63
+Scale 1	9,100,000
+Note	Engraved map in outline color. Relief shown pictorially. Covers Central and Southern Africa from 2 degrees N. southward, including Madagascar, Reunion, Mauritius and the Seychelles.
+World Area	Africa
+Full Title	Carte du Congo et du Pays des Cafres. Par G. De l'Isle de l'Academie Royale des Sciences. A Paris, chez l'Auteur sur le Quai de l'Horloge, avec Privilege, Janvier 1708.
+List No	4764.092
+Page No	83
+Series No	93
+Publication Author	L'Isle, Guillaume de, 1675-1726
+Pub Date	1731
+Pub Title	(Atlas de Geographie)
+Pub Reference	cf P533, 535; Tooley, Mapping of America p.1-28.; Martin & Martin, 14 & 19; Wheat 99; Cumming 170.
+Pub Note	De L'Isle is important as the first "scientific" cartographer who incorporated the most current information on exploration and topography into his maps. His maps of America contain many innovations: discarding the fallacy of California as an island, first naming of Texas, first correct delineation of the Mississippi Valley, and first correct longitudes of America. Lloyd Brown states that De L'Isle "undertook a complete reform of a system of geography that had been in force since the second century, and by the time he was twenty five he had very nearly accomplished his purpose." This copy is without title page, as issued. This is a relatively early edition of De L'Isle's untitled atlas, published in Paris, with most of the maps having the "Quai de l'Horloge" imprint. All of the important maps of the Americas are present: Hemisphere Occidental, 1st issue 1724; Carte d'Amerique, 1st issue, 2nd state 1722; L'Amerique Septentrionale, 2nd issue 1700-1708 ; L'Amerique Meridionale, 3rd issue 1700-1708; Carte du Canada, 2nd issue 1703-1708; Carte de la Louisiane, 1st issue, 2nd state with New Orleans 1718; Carte du Mexique et de la Floride, 2nd issue 1703-1708; Carte de l'Isle de Saint Dominque, 1st issue 1725; Carte des Antilles, 1st issue 1717; Carte de la Terre Ferme du Peru, du Brazil, 2nd issue 1703-1708; and Carte du Paraguay du Chili, 2nd issue 1703-1708. Only two of the ninety four maps were issued after De l'Isle's death in 1826: "Carte du... Senegal... Ouvrage Posthume... Par... La Veuve Delisle 1826" and "Alexandri Magni Imperium...Opus Posthumum...1731." Early Paris editions (ie before Buache became publisher in 1732) of De L'Isle's atlas with the full 94 maps are scarce - the LOC has none.
+Pub List No	4764.000
+Pub Type	World Atlas
+Pub Maps	94
+Pub Height cm	55
+Pub Width cm	40
+Image No	4764092
+Download 1	<a href=https://www.davidrumsey.com/rumsey/download.pl?image=/D0030/4764092.sid target=_blank>Full Image Download in MrSID Format</a>
+Download 2	<a href="https://www.extensis.com/support/geoviewer-9" target="_blank">GeoViewer for JP2 and SID files</a>
+Authors	L'Isle, Guillaume de, 1675-1726
+Collection	Rumsey Collection
+AI-Generated Summary	The image depicts a historical map titled "Carte du Congo et du Pays des Cafres," created by Guillaume de L'Isle in 1708. This map is part of an atlas published by De L'Isle at Quai de l'Horloge in Paris, showcasing his pioneering approach to cartography by integrating contemporary exploration data and scientific methods.<br><br>Composition and Medium:<br>
+The map is an engraved work with outline color, measuring 63 cm in width and 49 cm in height. The relief is shown pictorially, a common technique of the era to represent topographical features. The map covers a vast region of Central and Southern Africa, extending from 2 degrees north southward, including notable islands such as Madagascar, Réunion, Mauritius, and the Seychelles.<br><br>Style and Subject Matter:<br>
+De L'Isle's style is characterized by meticulous detail and an emphasis on accuracy, reflecting his reputation as the first "scientific" cartographer. This map focuses on the geographical and political landscapes of the Congo region and the land of the Cafres (an older term referring to parts of Southern Africa). It includes various kingdoms and territories, marked with names and boundaries reflecting the political understanding of the time.<br><br>Cultural and Historical Context:<br>
+In the early 18th century, European interest in Africa was growing, driven by exploration, colonial ambitions, and the transatlantic slave trade. De L'Isle's work was significant for incorporating the latest information from explorers and traders, aiming for precision in a period when many maps were speculative. His maps often corrected previous misconceptions, such as the myth of California as an island, and provided more accurate depictions of regions like the Mississippi Valley.<br><br>Notable Features and Inscriptions:<br>
+The map includes detailed inscriptions of place names, river systems, and mountain ranges. Coastal areas are particularly well-defined, reflecting the areas most familiar to European explorers at the time. De L'Isle's maps were renowned for their clarity and informative content, often serving as valuable resources for navigators and geographers.<br><br>Significance:<br>
+De L'Isle's atlas, from which this map is taken, was a landmark in cartographic history. It marked a shift towards more empirical and scientific methods of map-making, influencing future generations of cartographers. His work played a crucial role in the dissemination of geographic knowledge during a time when European powers were expanding their global reach.<br><br>Atlas Information:<br>
+This map is part of a larger world atlas, noted for its comprehensive coverage of various regions. The atlas contains 94 maps, with this specific map listed under "List No 4764.092." The publication is identified as "Pub List No 4764.000" in the Rumsey Collection.<br><br>In summary, Guillaume de L'Isle's "Carte du Congo et du Pays des Cafres" is a testament to the evolving science of cartography in the early 18th century, reflecting both the geographical knowledge and the European perspectives of the time.

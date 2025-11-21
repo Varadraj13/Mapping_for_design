@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DRC Languages - 1B Historical Overlay</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+        }
+        
+        body {
+            font-family: Georgia, serif;
+            background: #fafafa;
+            color: #111;
+        }
+        
+        #map {
+            height: 100vh;
+            width: 100%;
+        }
+        
+        /* Minimal NY Times style popup */
+        .leaflet-popup-content-wrapper {
+            font-family: Georgia, serif;
+            border-radius: 0;
+            box-shadow: none;
+            border: 1px solid #ccc;
+            background: #fafafa;
+        }
+        
+        .leaflet-popup-tip {
+            background: #fafafa;
+            border: 1px solid #ccc;
+        }
+        
+        .language-popup {
+            max-width: 200px;
+            padding: 0;
+        }
+        
+        .language-popup h4 {
+            margin: 0;
+            padding: 10px 12px;
+            color: #111;
+            background: transparent;
+            font-size: 13px;
+            border-bottom: 1px solid #e0e0e0;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+        }
+        
+        .language-popup .info {
+            padding: 10px 12px;
+            font-size: 12px;
+            line-height: 1.6;
+            color: #333;
+        }
+        
+        .language-popup .speakers {
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #111;
+        }
+        
+        .language-popup .regions {
+            font-size: 11px;
+            color: #777;
+            margin-top: 6px;
+            line-height: 1.5;
+        }
+
+        /* Minimal NY Times legend */
+        .legend {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background: #fafafa;
+            padding: 16px;
+            border-radius: 0;
+            box-shadow: none;
+            border: 1px solid #e0e0e0;
+            z-index: 1000;
+            max-width: 220px;
+        }
+        
+        .legend h4 {
+            margin: 0 0 12px 0;
+            font-size: 11px;
+            color: #111;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 10px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        }
+        
+        .legend-section {
+            margin-bottom: 14px;
+        }
+        
+        .legend-section:last-child {
+            margin-bottom: 0;
+        }
+        
+        .layer-toggle {
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-size: 11px;
+        }
+        
+        .layer-toggle input[type="checkbox"] {
+            margin-right: 8px;
+            cursor: pointer;
+            width: 14px;
+            height: 14px;
+            accent-color: #111;
+        }
+        
+        .layer-toggle label {
+            cursor: pointer;
+            flex: 1;
+            font-size: 12px;
+            color: #333;
+            line-height: 1.5;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 9px;
+            font-size: 12px;
+            margin-left: 22px;
+        }
+        
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .legend-color {
+            width: 10px;
+            height: 10px;
+            margin-right: 8px;
+            border: none;
+            flex-shrink: 0;
+        }
+        
+        /* Tooltip styling */
+        .leaflet-tooltip {
+            background: rgba(17, 17, 17, 0.85);
+            border: none;
+            border-radius: 0;
+            color: #fafafa;
+            font-family: Georgia, serif;
+            font-size: 12px;
+            padding: 6px 8px;
+            box-shadow: none;
+        }
+        
+        .leaflet-tooltip-left:before {
+            border-left-color: rgba(17, 17, 17, 0.85);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="map"></div>
+    
+    <!-- Legend -->
+    <div class="legend">
+        <h4>Layers</h4>
+        
+        <div class="legend-section">
+            <div class="layer-toggle">
+                <input type="checkbox" id="historicalMapToggle" checked>
+                <label for="historicalMapToggle">Historical Map</label>
+            </div>
+            <div class="layer-toggle">
+                <input type="checkbox" id="provincialBoundariesToggle" checked>
+                <label for="provincialBoundariesToggle">Provincial Boundaries</label>
+            </div>
+            <div class="layer-toggle">
+                <input type="checkbox" id="languageLayerToggle" checked>
+                <label for="languageLayerToggle">Language Info</label>
+            </div>
+        </div>
+        
+        <h4 style="margin-top: 12px;">Languages</h4>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #4A90E2;"></div>
+            <span>Lingala</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #7ED321;"></div>
+            <span>Bantu Languages</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #F5A623;"></div>
+            <span>Sudanic</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #BD10E0;"></div>
+            <span>Ubangian</span>
+        </div>
+        <div class="legend-item">
+            <div class="legend-color" style="background-color: #50E3C2;"></div>
+            <span>River Languages</span>
+        </div>
+    </div>
+
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+    
+    <script>
+        // Initialize map
+        var map = L.map('map').setView([-2.0, 22.0], 6);
+
+        // Add CartoDB Light basemap
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
+            attribution: '',
+            subdomains: 'abcd',
+            maxZoom: 19
+        }).addTo(map);
+
+        // Historical Image Overlay (1-B.jpg) - slightly more visible
+        var imageBounds = [
+            [5.5, 12.0],
+            [-13.5, 31.5]
+        ];
+        
+        var historicalOverlay = L.imageOverlay('Resources/1-B.jpg', imageBounds, {
+            opacity: 0.4,
+            interactive: false
+        }).addTo(map);
+
+        // Provincial boundaries data (from 1-A)
+        var provincialData = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Kinshasa"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[15.150677777000112, -4.425150932999969], [15.188044068000067, -4.37218678799988], [15.193418416000014, -4.358750914999916], [15.203960409000075, -4.339010518999956], [15.228351684000103, -4.32485117599991], [15.255740194000055, -4.313068948999913], [15.275273885000047, -4.30035654699995], [15.386584920000104, -4.2443392939999285], [15.42544559700005, -4.230179951999986], [15.450250285000095, -4.217260843999966], [15.458931925000059, -4.21385019899995], [15.462859334000115, -4.20713226299992], [15.484976847000041, -4.1838778689999145], [15.490351196000091, -4.1751962279999475], [15.521150350000056, -4.07680430099991], [15.533759399000076, -4.057994079999901], [15.549055623000129, -4.046211852999903], [15.566832316000074, -4.038046976999894], [15.711216267000111, -3.9921583049999185], [15.755141235000053, -3.985647074999946], [15.799996378000117, -3.9788257849998985], [15.84423140500013, -3.9655966189998964], [15.88298872900009, -3.9453394569999034], [15.888019272871134, -3.9405229785526217], [16.183981404000065, -2.9404492519999508], [15.150677777000112, -4.425150932999969]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Kongo Central"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[12.0, -5.0], [15.150677777000112, -4.425150932999969], [15.0, -6.5], [12.0, -6.5], [12.0, -5.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Bandundu"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[16.183981404000065, -2.9404492519999508], [19.0, -2.5], [19.0, -5.5], [15.888019272871134, -3.9405229785526217], [15.88298872900009, -3.9453394569999034], [15.84423140500013, -3.9655966189998964], [15.799996378000117, -3.9788257849998985], [16.183981404000065, -2.9404492519999508]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Équateur"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[17.0, 2.0], [22.0, 2.0], [22.0, -2.5], [16.183981404000065, -2.9404492519999508], [17.0, 1.0], [17.0, 2.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Orientale"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[22.0, 4.0], [31.0, 4.0], [31.0, -2.0], [22.0, -2.0], [22.0, 4.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Kasaï Occidental"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[19.0, -4.0], [23.0, -4.0], [23.0, -7.5], [19.0, -7.5], [19.0, -4.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Kasaï Oriental"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[23.0, -4.0], [26.0, -4.0], [26.0, -8.0], [23.0, -8.0], [23.0, -4.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Katanga"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[23.0, -7.5], [30.0, -7.5], [30.0, -13.5], [22.0, -13.5], [22.0, -8.0], [23.0, -7.5]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Nord-Kivu"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[28.0, -0.5], [30.5, -0.5], [30.5, -3.0], [28.0, -3.0], [28.0, -0.5]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Sud-Kivu"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[27.5, -3.0], [30.5, -3.0], [30.5, -5.5], [27.5, -5.5], [27.5, -3.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {"iso_a2": "CD", "name": "Maniema"},
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[25.0, -2.0], [28.0, -2.0], [28.0, -7.0], [25.0, -7.0], [25.0, -2.0]]]
+                    }
+                }
+            ]
+        };
+
+        // Language territories data - mapped as clean regions
+        var languageTerritoriesData = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Lingala",
+                        "speakers": "14,432,975",
+                        "regions": "Northwestern DRC, Congo River basin, Kinshasa",
+                        "color": "#4A90E2"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[12.5, 2.0], [24.0, 2.0], [24.0, -4.0], [12.5, -4.0], [12.5, 2.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Kikongo",
+                        "speakers": "457,911+",
+                        "regions": "Western DRC, Kongo Central",
+                        "color": "#7ED321"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[12.0, -3.0], [16.0, -3.0], [16.0, -7.5], [12.0, -7.5], [12.0, -3.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Tshiluba",
+                        "speakers": "395,871+",
+                        "regions": "Kasai region",
+                        "color": "#7ED321"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[19.0, -4.0], [26.0, -4.0], [26.0, -8.0], [19.0, -8.0], [19.0, -4.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Kiluba",
+                        "speakers": "~400,000",
+                        "regions": "Katanga region",
+                        "color": "#7ED321"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[22.0, -7.0], [30.0, -7.0], [30.0, -13.5], [22.0, -13.5], [22.0, -7.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Djolu",
+                        "speakers": "366,705",
+                        "regions": "Northeastern DRC",
+                        "color": "#F5A623"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[24.0, 0.5], [30.0, 0.5], [30.0, 2.5], [24.0, 2.5], [24.0, 0.5]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Libenge",
+                        "speakers": "365,190",
+                        "regions": "Northern DRC",
+                        "color": "#BD10E0"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[24.0, 2.0], [27.0, 2.0], [27.0, 4.0], [24.0, 4.0], [24.0, 2.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Busangu",
+                        "speakers": "457,911",
+                        "regions": "Equateur Province",
+                        "color": "#7ED321"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[20.0, 0.5], [24.0, 0.5], [24.0, 2.5], [20.0, 2.5], [20.0, 0.5]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Kutu",
+                        "speakers": "395,871",
+                        "regions": "Central DRC Basin",
+                        "color": "#7ED321"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[18.0, -2.0], [24.0, -2.0], [24.0, -4.5], [18.0, -4.5], [18.0, -2.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Basankusu",
+                        "speakers": "350,541",
+                        "regions": "Central Congo Basin",
+                        "color": "#7ED321"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[18.5, -3.0], [23.0, -3.0], [23.0, -5.5], [18.5, -5.5], [18.5, -3.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Yakoma",
+                        "speakers": "344,459",
+                        "regions": "Northwestern DRC",
+                        "color": "#BD10E0"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[17.0, 1.5], [21.0, 1.5], [21.0, 3.5], [17.0, 3.5], [17.0, 1.5]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Basoko",
+                        "speakers": "336,979",
+                        "regions": "Congo River communities",
+                        "color": "#50E3C2"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[19.0, -1.0], [25.0, -1.0], [25.0, -3.0], [19.0, -3.0], [19.0, -1.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Befale",
+                        "speakers": "319,887",
+                        "regions": "Central Forest Region",
+                        "color": "#7ED321"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[20.0, -2.5], [24.0, -2.5], [24.0, -5.0], [20.0, -5.0], [20.0, -2.5]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Ikela",
+                        "speakers": "308,656",
+                        "regions": "Mongo region",
+                        "color": "#7ED321"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[19.5, -3.5], [23.5, -3.5], [23.5, -6.0], [19.5, -6.0], [19.5, -3.5]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Bikoro",
+                        "speakers": "302,915",
+                        "regions": "Western-Central DRC",
+                        "color": "#7ED321"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[16.0, -3.5], [20.0, -3.5], [20.0, -6.0], [16.0, -6.0], [16.0, -3.5]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Buta / Opala",
+                        "speakers": "275,585 / 273,580",
+                        "regions": "Northeastern DRC",
+                        "color": "#F5A623"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[26.0, 0.0], [30.0, 0.0], [30.0, 2.0], [26.0, 2.0], [26.0, 0.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Kasangulu",
+                        "speakers": "206,422",
+                        "regions": "Southern DRC",
+                        "color": "#7ED321"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[18.0, -10.0], [26.0, -10.0], [26.0, -13.5], [18.0, -13.5], [18.0, -10.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Bomongo",
+                        "speakers": "201,134",
+                        "regions": "Central Forest Belt",
+                        "color": "#7ED321"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[21.0, -4.5], [25.0, -4.5], [25.0, -7.0], [21.0, -7.0], [21.0, -4.5]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Yahuma",
+                        "speakers": "170,475",
+                        "regions": "Eastern DRC",
+                        "color": "#7ED321"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[26.0, -3.0], [30.0, -3.0], [30.0, -6.0], [26.0, -6.0], [26.0, -3.0]]]
+                    }
+                },
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Lukolela",
+                        "speakers": "168,575",
+                        "regions": "Congo River, Central section",
+                        "color": "#50E3C2"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[17.0, -2.0], [21.0, -2.0], [21.0, -4.0], [17.0, -4.0], [17.0, -2.0]]]
+                    }
+                }
+            ]
+        };
+
+        // Minimal style function
+        function getLanguageStyle(feature) {
+            return {
+                fillColor: feature.properties.color,
+                weight: 1,
+                opacity: 0.6,
+                color: '#333',
+                fillOpacity: 0.35
+            };
+        }
+
+        // Add language territories layer
+        var languageLayer = L.geoJSON(languageTerritoriesData, {
+            style: getLanguageStyle,
+            onEachFeature: function(feature, layer) {
+                var props = feature.properties;
+                
+                // Minimal popup
+                var popupContent = `
+                    <div class="language-popup">
+                        <h4>${props.name}</h4>
+                        <div class="info">
+                            <div class="speakers">${props.speakers} speakers</div>
+                            <div class="regions">${props.regions}</div>
+                        </div>
+                    </div>
+                `;
+                
+                // Tooltip on hover
+                layer.bindTooltip(props.name, { 
+                    sticky: false, 
+                    direction: 'auto',
+                    offset: [0, 10]
+                });
+                
+                layer.bindPopup(popupContent, { maxWidth: 250 });
+                
+                // Hover effects
+                layer.on({
+                    mouseover: function(e) {
+                        var l = e.target;
+                        l.setStyle({
+                            weight: 2,
+                            opacity: 1.0,
+                            fillOpacity: 0.6
+                        });
+                        l.bringToFront();
+                    },
+                    mouseout: function(e) {
+                        languageLayer.resetStyle(e.target);
+                    }
+                });
+            }
+        }).addTo(map);
+
+        // Create provincial boundaries layer
+        var provincialBoundariesLayer = L.geoJSON(provincialData, {
+            style: {
+                color: '#8B4513',
+                weight: 2,
+                opacity: 1,
+                dashArray: '5, 5',
+                fillOpacity: 0.1,
+                fillColor: '#8B4513'
+            }
+        }).addTo(map);
+
+        // Fit to bounds
+        map.fitBounds(languageLayer.getBounds().pad(0.05));
+        
+        // Layer toggle functionality
+        document.getElementById('historicalMapToggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                historicalOverlay.setOpacity(0.4);
+            } else {
+                historicalOverlay.setOpacity(0);
+            }
+        });
+
+        document.getElementById('provincialBoundariesToggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                if (!map.hasLayer(provincialBoundariesLayer)) {
+                    provincialBoundariesLayer.addTo(map);
+                }
+            } else {
+                if (map.hasLayer(provincialBoundariesLayer)) {
+                    map.removeLayer(provincialBoundariesLayer);
+                }
+            }
+        });
+        
+        document.getElementById('languageLayerToggle').addEventListener('change', function(e) {
+            if (e.target.checked) {
+                if (!map.hasLayer(languageLayer)) {
+                    languageLayer.addTo(map);
+                }
+                // Restore opacity
+                languageLayer.eachLayer(function(layer) {
+                    var style = layer.options;
+                    layer.setStyle({
+                        fillOpacity: 0.35,
+                        opacity: 0.6
+                    });
+                });
+            } else {
+                if (map.hasLayer(languageLayer)) {
+                    map.removeLayer(languageLayer);
+                }
+            }
+        });
+        
+        // Expose for external access
+        window.map = map;
+    </script>
+</body>
+</html>
