@@ -96,6 +96,17 @@
 </script>
     
             <div class="folium-map" id="map_1570c7cfaf096e8254bfa7fc97d2ec62" ></div>
+            <div class="map-controls">
+              <div id="north-arrow" style="position:absolute;top:30px;left:30px;z-index:1000;">
+                <svg width="32" height="32" viewBox="0 0 32 32">
+                  <polygon points="16,2 22,22 16,18 10,22" fill="#222" />
+                  <text x="16" y="30" text-anchor="middle" font-size="10" fill="#222" font-family="Georgia,serif">N</text>
+                </svg>
+              </div>
+              <div id="scale-bar" style="position:absolute;bottom:30px;left:30px;z-index:1000;background:#fff;padding:2px 8px;border:1px solid #ccc;font-family:Georgia,serif;font-size:12px;">
+                <span id="scale-bar-label">Scale</span>
+              </div>
+            </div>
         
 </body>
 <script>
